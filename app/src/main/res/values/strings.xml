@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">Car</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Magtonic</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="nav_about">About</string>invalid_license_plate
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_tools">Tools</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_send">Send</string>
+
+    <string name="hide_keyboard">Hide Keyboard</string>
+    <string name="show_keyboard">Show Keyboard</string>
+
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="exit_app_msg">Exit from this app?</string>
+
+    <string name="get_or_send_failed_wifi_is_not_connected">Cannot get or post from webservice due to wifi connection is
+        lost.
+    </string>
+    <string name="barcode_scanning_get_info">Getting Information...</string>
+    <string name="barcode_scan_off_because_wifi_is_not_connected">Scan barcode is useless while WiFi is not connected.</string>
+    <string name="receipt_this_receipt_not_exist">This receipt no is not exist</string>
+    <string name="toast_network_error">Network error</string>
+    <string name="toast_server_error">Server error</string>
+
+    <string name="receipt_barcode_input_hint">Scan barcode or input</string>
+
+    <string name="nav_guest">Supplier</string>
+    <string name="btn_guest_leave">Leave</string>
+    <string name="guest_in_title">"Please check plant and guest No. "</string>
+    <string name="btn_guest_in">In</string>
+    <string name="guest_in_no">No.</string>
+    <string name="guest_in_or_out_dialog_in_date">In Date</string>
+    <string name="version_string">Version: %d.%s</string>
+    <string name="nav_text">Text OCR</string>
+    <string name="license_plate_empty">License plate can not be empty</string>
+    <string name="invalid_license_plate">Invalid license plate</string>
+    <string name="license_plate_select_image">Select Image</string>
+    <string name="license_plate_take_photo">Take Picture</string>
+    <string name="recognize_failed">Failed</string>
+    <string name="detect_hint">Detected text will appear here.</string>
+    <string name="detect_no_text_found">No text found</string>
+</resources>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Car</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">期美科技</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="nav_about">關於</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_tools">Tools</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_send">Send</string>
+
+    <string name="hide_keyboard">隱藏鍵盤</string>
+    <string name="show_keyboard">顯示鍵盤</string>
+
+    <string name="confirm">確定</string>
+    <string name="cancel">取消</string>
+    <string name="exit_app_msg">關閉這個App?</string>
+
+    <string name="get_or_send_failed_wifi_is_not_connected">Wifi沒有連線無法取得或上傳資訊</string>
+    <string name="barcode_scanning_get_info">取得資訊中...</string>
+    <string name="barcode_scan_off_because_wifi_is_not_connected">掃描無效，WiFi尚未連線</string>
+    <string name="receipt_this_receipt_not_exist">無此單號</string>
+    <string name="toast_network_error">網路連線失敗,請檢查</string>
+    <string name="toast_server_error">伺服器錯誤,請通知資訊人員</string>
+
+    <string name="receipt_barcode_input_hint">掃描條碼或輸入</string>
+
+    <string name="nav_guest">廠商入廠</string>
+    <string name="btn_guest_leave">離廠</string>
+    <string name="guest_in_title">請檢查廠區和廠商編號是否正確</string>
+    <string name="btn_guest_in">入廠</string>
+    <string name="guest_in_no">編號</string>
+    <string name="guest_in_or_out_dialog_in_date">入廠日期</string>
+    <string name="version_string">版本: %d.%s</string>
+    <string name="nav_text">文字辨識</string>
+    <string name="license_plate_empty">車牌不能為空</string>
+    <string name="invalid_license_plate">無效的車牌</string>
+    <string name="license_plate_select_image">選擇圖片</string>
+    <string name="license_plate_take_photo">拍車牌</string>
+    <string name="recognize_failed">辨認失敗</string>
+    <string name="detect_hint">顯示偵測到文字</string>
+    <string name="detect_no_text_found">找不到文字</string>
+
+</resources>

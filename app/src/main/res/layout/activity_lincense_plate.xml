@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/license_plate_container">
+
+    <ImageView
+        android:id="@+id/imageViewLicensePlate"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+
+        android:layout_centerHorizontal="true"/>
+
+    <LinearLayout
+        android:id="@+id/actionContainerLicensePlate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageViewLicensePlate"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnSelectLicensePlate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/license_plate_select_image"
+            android:layout_weight="1"/>
+        <!--Button
+            android:id="@+id/btnRecognize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Recognize Text"
+            android:layout_weight="1" /-->
+        <Button
+            android:id="@+id/btnTakePhotoLicensePlate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/license_plate_take_photo"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/actionContainerLicensePlate"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textViewLicensePlate"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:gravity="top"
+            android:padding="10dp"
+            android:hint="@string/detect_hint"
+            android:layout_weight="2"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_weight="1">
+
+                <EditText
+                    android:id="@+id/editTextLicensePlateFront"
+                    android:text="1234"
+                    android:gravity="center_horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:textStyle="bold"
+                    android:maxLength="4"
+                    android:inputType="textEmailAddress"
+                    android:textSize="@dimen/text_size_55"/>
+
+                <TextView
+                    android:text=" - "
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="3"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/text_size_55"/>
+
+                <EditText
+                    android:id="@+id/editTextLicensePlateRear"
+                    android:text="1234"
+                    android:gravity="center_horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:textStyle="bold"
+                    android:maxLength="4"
+                    android:inputType="textEmailAddress"
+                    android:textSize="@dimen/text_size_55"/>
+            </LinearLayout>
+            <Button
+                android:id="@+id/btnConfirmLicensePlate"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:textSize="@dimen/text_size_30"
+                android:text="@string/confirm" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>

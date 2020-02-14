@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "801369095036",
+    "firebase_url": "https://magtoniccargo.firebaseio.com",
+    "project_id": "magtoniccargo",
+    "storage_bucket": "magtoniccargo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:801369095036:android:f9bee8b302f9f616e6c2f9",
+        "android_client_info": {
+          "package_name": "com.magtonic.magtoniccargoinout"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "801369095036-p6b2ukh5cdk4p2898qran0cm7q302c7o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.magtonic.magtoniccargoinout",
+            "certificate_hash": "a2a1418aa0461612dc55ef66d0d234f98d578d02"
+          }
+        },
+        {
+          "client_id": "801369095036-2f2tet8ve1bomdrct4onknbgsbiu0lra.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2xz_ORxHUGlfT16_PDTZ0-Qe_S0sUFVU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "801369095036-2f2tet8ve1bomdrct4onknbgsbiu0lra.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
