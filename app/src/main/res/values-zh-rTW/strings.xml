@@ -47,5 +47,6 @@
     <string name="recognize_failed">辨認失敗</string>
     <string name="detect_hint">顯示偵測到文字</string>
     <string name="detect_no_text_found">找不到文字</string>
+    <string name="nav_shipment_check">出貨檢查</string>
 
 </resources>

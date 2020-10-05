@@ -8,6 +8,12 @@ class ReceiveTransform {
 
     inner class RJGuestList {
         var dataList = ArrayList<RJGuest>()
+
+    }
+
+    inner class RJShipmentList {
+        var dataList = ArrayList<RJShipment>()
+
     }
 
     companion object {

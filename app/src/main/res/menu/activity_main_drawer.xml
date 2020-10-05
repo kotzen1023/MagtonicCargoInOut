@@ -9,10 +9,15 @@
             android:icon="@drawable/baseline_local_shipping_black_24"
             android:title="@string/nav_guest" />
 
-        <item
+        <!--item
             android:id="@+id/nav_text"
             android:icon="@drawable/baseline_text_format_black_24"
-            android:title="@string/nav_text" />
+            android:title="@string/nav_text" /-->
+        <item
+            android:id="@+id/nav_shipment_check"
+            android:icon="@drawable/baseline_check_circle_black_24"
+            android:title="@string/nav_shipment_check"
+            android:visible="true"/>
 
         <item
             android:id="@+id/nav_about"

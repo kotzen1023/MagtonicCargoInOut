@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="?attr/actionBarSize"
-    android:id="@+id/guest_list_container">
+    android:id="@+id/shipment_check_list_container">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,21 +13,21 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="60dp"
             android:orientation="vertical">
 
-            <Spinner
+            <!--Spinner
                 android:id="@+id/guestItemSpinner"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:spinnerMode="dialog" />
+                android:spinnerMode="dialog" /-->
 
             <EditText
-                android:id="@+id/editTextGuest"
+                android:id="@+id/editTextShipmentCheck"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_height="60dp"
+
                 android:textSize="@dimen/text_size_25"
                 android:hint="@string/receipt_barcode_input_hint"
                 android:textAlignment="center"
@@ -38,15 +38,22 @@
 
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/linearLayoutGuest"
+            android:id="@+id/linearLayoutShipmentCheck"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <ListView
-                android:id="@+id/listViewGuest"
+            <ImageView
+                android:id="@+id/resultImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="240dp"
+                android:src="@drawable/circle_green"
+                android:visibility="visible"/>
+
+            <ListView
+                android:id="@+id/listViewShipmentCheck"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
         </LinearLayout>
 
 

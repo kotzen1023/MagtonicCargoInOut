@@ -48,4 +48,5 @@
     <string name="recognize_failed">Failed</string>
     <string name="detect_hint">Detected text will appear here.</string>
     <string name="detect_no_text_found">No text found</string>
+    <string name="nav_shipment_check">Shipment Check</string>
 </resources>

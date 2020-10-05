@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.magtonic.magtoniccargoinout.model.send.HttpGuestInOrOutMultiPara
 import com.magtonic.magtoniccargoinout.model.send.HttpGuestNotLeaveGetPara
 import com.magtonic.magtoniccargoinout.model.send.HttpReceiptGetPara
+import com.magtonic.magtoniccargoinout.model.send.HttpShipmentPara
 import okhttp3.*
 
 import java.io.IOException
@@ -28,6 +29,8 @@ class ApiFunc {
 
     private val apiStrGetGuestNotLeaveYetMulti = iepIP + "webs_app_car004"
 
+    private val apiStrShipmentCheck = iepIP + "webs_app_ogb01"
+
     private object ContentType {
 
         const val title = "Content-Type"
@@ -47,6 +50,10 @@ class ApiFunc {
 
     fun getGuestMulti(para: HttpGuestNotLeaveGetPara, callback: Callback) {
         postWithParaPJsonStr(apiStrGetGuestNotLeaveYetMulti, Gson().toJson(para), callback)
+    }
+
+    fun getShipmentCheckMulti(para: HttpShipmentPara, callback: Callback) {
+        postWithParaPJsonStr(apiStrShipmentCheck, Gson().toJson(para), callback)
     }
 
     // post with only one para  "p_json"

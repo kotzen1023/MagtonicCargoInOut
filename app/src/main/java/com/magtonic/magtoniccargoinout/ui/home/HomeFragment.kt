@@ -56,11 +56,12 @@ class HomeFragment : Fragment() {
     private var poBarcode: String = ""
     private var poLine: String = ""
 
+    private var guestContext: Context? = null
     //private lateinit var homeViewModel: HomeViewModel
 
-    companion object {
+    /*companion object {
         private var handler: MyHandler? = null
-        private var guestContext: Context? = null
+
 
         private var mTimer: Timer? = null
         private var mTimerTask //計時任務，判斷是否未操作時間到達3s
@@ -87,18 +88,6 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-
-        /*private var handler: Handler = object : Handler() {
-            override fun handleMessage(msg: Message) {
-                if (msg.what === 1) { //回到主執行緒執行結束操作
-                    //Log.e("=====", "結束計時")
-
-                    val getIntent = Intent()
-                    getIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_LIST_ACTION
-                    guestContext!!.sendBroadcast(getIntent)
-                }
-            }
-        }*/
 
         //private class MyHandler(context: Context) : Handler() {
         private class MyHandler : Handler() {
@@ -135,14 +124,15 @@ class HomeFragment : Fragment() {
                 mTimer!!.cancel()
             mTimer = null
         }
-    }
+    }*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         guestContext = context
 
-        handler = MyHandler()
+
+
     }
 
     override fun onCreateView(
@@ -180,7 +170,8 @@ class HomeFragment : Fragment() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 Log.e(mTAG, "position: $position")
 
-                stopTimer()
+                //removeTimer()
+                //stopTimer()
 
                 progressBar!!.visibility = View.VISIBLE
 
@@ -372,7 +363,8 @@ class HomeFragment : Fragment() {
                         poLine = intent.getStringExtra("LINE") as String
                         barcodeInput!!.setText(poBarcode)
 
-                        stopTimer()
+                        //removeTimer()
+                        //stopTimer()
 
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_GUEST_FRAGMENT_REFRESH, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_GUEST_FRAGMENT_REFRESH")
@@ -423,7 +415,7 @@ class HomeFragment : Fragment() {
                             guestDetailItemAdapter?.notifyDataSetChanged()
                         }
 
-                        startTimer()
+                        //startTimer()
 
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_GUEST_LIST_CLEAR, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_GUEST_LIST_CLEAR")
@@ -442,13 +434,13 @@ class HomeFragment : Fragment() {
                             guestDetailItemAdapter?.notifyDataSetChanged()
                         }
 
-                        startTimer()
+                        //startTimer()
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_GUEST_IN_OR_LEAVE_FAILED, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_GUEST_IN_OR_LEAVE_FAILED")
 
                         progressBar!!.visibility = View.GONE
 
-                        startTimer()
+                        //startTimer()
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_GUEST_IN_OR_LEAVE_SUCCESS, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_GUEST_IN_OR_LEAVE_SUCCESS")
 
@@ -510,8 +502,13 @@ class HomeFragment : Fragment() {
 
                         progressBar!!.visibility = View.GONE
 
-                        startTimer()
-                    }
+                        //startTimer()
+                    } /*else if (intent.action!!.equals(Constants.ACTION.ACTION_GUEST_STOP_TIMER, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_GUEST_STOP_TIMER")
+
+                        removeTimer()
+                        stopTimer()
+                    }*/
 
                 }
             }
@@ -531,6 +528,7 @@ class HomeFragment : Fragment() {
             filter.addAction(Constants.ACTION.ACTION_GUEST_SHOW_LEAVE_ACTION)
             filter.addAction(Constants.ACTION.ACTION_RECEIPT_FRAGMENT_REFRESH)
             filter.addAction(Constants.ACTION.ACTION_RECEIPT_NO_NOT_EXIST)
+            //filter.addAction(Constants.ACTION.ACTION_GUEST_STOP_TIMER)
 
             //filter.addAction(Constants.ACTION.ACTION_RECEIPT_ALREADY_UPLOADED_SEND_TO_FRAGMENT)
             guestContext?.registerReceiver(mReceiver, filter)
@@ -543,13 +541,22 @@ class HomeFragment : Fragment() {
         getIntent.putExtra("PLANT", currentPlant)
         guestContext!!.sendBroadcast(getIntent)*/
 
-        mLastActionTime = System.currentTimeMillis()
+        //mLastActionTime = System.currentTimeMillis()
+        val startTimerIntent = Intent()
+        startTimerIntent.action = Constants.ACTION.ACTION_GUEST_START_TIMER
+        guestContext!!.sendBroadcast(startTimerIntent)
 
         return view
     }
 
     override fun onDestroy() {
         Log.i(mTAG, "onDestroy")
+
+        //removeTimer()
+        //stopTimer()
+        val stopTimerIntent = Intent()
+        stopTimerIntent.action = Constants.ACTION.ACTION_GUEST_STOP_TIMER
+        guestContext!!.sendBroadcast(stopTimerIntent)
 
         super.onDestroy()
     }
@@ -569,7 +576,8 @@ class HomeFragment : Fragment() {
             Log.d(mTAG, "unregisterReceiver mReceiver")
         }
 
-        stopTimer()
+        //removeTimer()
+        //stopTimer()
 
         super.onDestroyView()
     }
