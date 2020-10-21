@@ -30,6 +30,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import androidx.room.Room
 import com.google.firebase.FirebaseApp
 import com.google.gson.Gson
 import com.magtonic.magtoniccargoinout.api.ApiFunc
@@ -43,6 +44,8 @@ import com.magtonic.magtoniccargoinout.model.send.HttpGuestNotLeaveGetPara
 import com.magtonic.magtoniccargoinout.model.send.HttpReceiptGetPara
 import com.magtonic.magtoniccargoinout.model.send.HttpShipmentPara
 import com.magtonic.magtoniccargoinout.model.sys.ScanBarcode
+import com.magtonic.magtoniccargoinout.persistence.History
+import com.magtonic.magtoniccargoinout.persistence.HistoryDataBase
 import com.magtonic.magtoniccargoinout.ui.data.Constants
 import com.magtonic.magtoniccargoinout.ui.home.HomeFragment
 import com.magtonic.magtoniccargoinout.ui.ocr.OcrFragment
@@ -77,6 +80,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var isRegister = false
 
     private var menuItemKeyboard: MenuItem? = null
+    private var menuItemShipmentHistory: MenuItem? = null
 
     companion object {
         @JvmStatic var screenWidth: Int = 0
@@ -94,7 +98,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         //shipment check
         @JvmStatic var shipmentList: ArrayList<RJShipment> = ArrayList()
-
+        var db: HistoryDataBase? = null
+        @JvmStatic var historyList: ArrayList<History>? = null
         //timer
         private var handler: MyHandler? = null
         //private var guestContext: Context? = null
@@ -201,6 +206,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         mContext = applicationContext
 
+        //load db
+        db = Room.databaseBuilder(mContext as Context, HistoryDataBase::class.java, HistoryDataBase.DATABASE_NAME)
+            .allowMainThreadQueries()
+            .build()
+
         //for timer
         handler = MyHandler()
 
@@ -257,6 +267,46 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else {
             initView()
             //initLog()
+        }
+
+        //load from db
+        if (db != null) {
+            if (historyList != null) {
+                historyList!!.clear()
+            } else {
+                historyList = ArrayList()
+            }
+
+            /*val tempList = db!!.historyDao().getAll() as ArrayList<History>
+
+            for (i in tempList.size - 1  downTo 0) {
+                historyList!!.add(tempList[i])
+            }*/
+
+            historyList = db!!.historyDao().getAll() as ArrayList<History>
+
+            if (historyList!!.size > 1 ) {
+                historyList = historyList!!.sortedBy { it.getId() }.reversed() as ArrayList<History>
+            }
+
+
+
+            Log.e(mTAG, "historyList.size = "+historyList!!.size)
+
+            for (i in 0 until historyList!!.size) {
+                Log.e(mTAG, "historyList[$i] = "+ historyList!![i].getId() +
+                        " Barcode = "+ historyList!![i].getBarcode()+
+                        " WorkOrderState = "+ historyList!![i].getWorkOrderState()+
+                        " WorkOrderDesc = "+ historyList!![i].getWorkOrderDesc()+
+                        " ShipmentState = "+ historyList!![i].getShipmentState()+
+                        " ShipmentDesc = "+ historyList!![i].getShipmentDesc()+
+                        " DateTime = "+ historyList!![i].getDatetime()+
+                        " Date = "+ historyList!![i].getDate()
+                )
+            }
+
+        } else {
+            Log.e(mTAG, "db = null")
         }
 
         val filter: IntentFilter
@@ -715,6 +765,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
         menuItemKeyboard = menu.findItem(R.id.main_hide_or_show_keyboard)
+        menuItemShipmentHistory = menu.findItem(R.id.main_shipment_history)
 
         return true
     }
@@ -727,6 +778,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             R.id.main_hide_or_show_keyboard -> {
                 imm?.toggleSoftInput(InputMethodManager.RESULT_HIDDEN, 0)
+            }
+
+            R.id.main_shipment_history-> {
+                val intent = Intent(this, ShowShipmentHistoryActivity::class.java)
+                startActivity(intent)
             }
         }
 
@@ -753,6 +809,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         navView!!.menu.getItem(0).isChecked = false //home
+        navView!!.menu.getItem(1).isChecked = false //shipment check
 
         when (menuItem.itemId) {
             R.id.nav_home -> {
@@ -760,6 +817,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 fragmentClass = HomeFragment::class.java
                 menuItem.isChecked = true
 
+                menuItemShipmentHistory!!.isVisible = false
                 title = getString(R.string.nav_guest)
             }
 
@@ -768,6 +826,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 fragmentClass = ShipmentCheckFragment::class.java
                 menuItem.isChecked = true
 
+                menuItemShipmentHistory!!.isVisible = true
                 title = getString(R.string.nav_shipment_check)
             }
             /*R.id.nav_text -> {
@@ -1527,6 +1586,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                         val refreshIntent = Intent()
                         refreshIntent.action = Constants.ACTION.ACTION_SHIPMENT_FRAGMENT_REFRESH
+                        refreshIntent.putExtra("BARCODE", barcode!!.poBarcodeByScan)
                         mContext!!.sendBroadcast(refreshIntent)
 
                     } else { //size == 0

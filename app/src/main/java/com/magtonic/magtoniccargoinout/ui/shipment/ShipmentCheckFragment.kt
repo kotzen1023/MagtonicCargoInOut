@@ -19,11 +19,15 @@ import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionText
 import com.magtonic.magtoniccargoinout.MainActivity
+import com.magtonic.magtoniccargoinout.MainActivity.Companion.db
+import com.magtonic.magtoniccargoinout.MainActivity.Companion.historyList
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.shipmentList
 import com.magtonic.magtoniccargoinout.R
+import com.magtonic.magtoniccargoinout.persistence.History
 import com.magtonic.magtoniccargoinout.ui.data.*
 import com.magtonic.magtoniccargoinout.ui.home.HomeFragment
 import com.magtonic.magtoniccargoinout.ui.ocr.OcrFragment
+import java.text.SimpleDateFormat
 import java.util.*
 
 class ShipmentCheckFragment : Fragment() {
@@ -241,6 +245,16 @@ class ShipmentCheckFragment : Fragment() {
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_FRAGMENT_REFRESH, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_SHIPMENT_FRAGMENT_REFRESH")
 
+                        val barcode = intent.getStringExtra("BARCODE")
+
+                        var history: History
+                        val c  = Calendar.getInstance(Locale.getDefault())
+                        //val dateTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                        val dateTime = SimpleDateFormat("HH:mm", Locale.getDefault())
+                        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        val dateString = date.format(c.time)
+                        val dateTimeString = dateTime.format(c.time)
+
                         shipmentCheckList.clear()
 
                         progressBar!!.visibility = View.GONE
@@ -256,7 +270,7 @@ class ShipmentCheckFragment : Fragment() {
                         for (rjShipment in shipmentList) {
                             val shipmentCheckItem = ShipmenCheckItem(rjShipment.result, rjShipment.result2)
 
-                            statusSum += shipmentCheckItem.getStatus()!!.toInt();
+                            statusSum += shipmentCheckItem.getStatus()!!.toInt()
 
                             shipmentCheckList.add(shipmentCheckItem)
                         }
@@ -272,6 +286,69 @@ class ShipmentCheckFragment : Fragment() {
                             imageView!!.visibility = View.VISIBLE
                         } else {
                             imageView!!.visibility = View.GONE
+                        }
+
+                        val firstFour = barcode!!.substring(0, 4)
+
+                        if (firstFour == "AX30") {
+                            //db
+                            if (db != null) {
+                                history = db!!.historyDao().getHistoryByBarcode(barcode as String)
+
+                                if (history != null) {
+                                    Log.e(mTAG, "shipmentList.size = ${shipmentList.size}")
+                                    history.setWorkOrderState(shipmentList[0].result)
+                                    history.setWorkOrderDesc(shipmentList[0].result2)
+                                    Log.e(mTAG, "shipmentList[0].result = ${shipmentList[0].result}, shipmentList[0].result2 = ${shipmentList[0].result2}")
+                                    if (shipmentList.size == 2) {
+                                        Log.e(mTAG, "shipmentList[1].result = ${shipmentList[1].result}, shipmentList[1].result2 = ${shipmentList[1].result2}")
+                                        history.setShipmentState(shipmentList[1].result)
+                                        history.setShipmentDesc(shipmentList[1].result2)
+                                    } else {
+                                        history.setShipmentState("")
+                                        history.setShipmentDesc("")
+                                    }
+
+
+                                    history.setDatetime(dateTimeString)
+                                    history.setDate(dateString)
+                                    db!!.historyDao().update(history)
+                                } else {
+                                    if (shipmentList.size == 2) {
+                                        history = History(
+                                            barcode,
+                                            shipmentList[0].result,
+                                            shipmentList[0].result2,
+                                            shipmentList[1].result,
+                                            shipmentList[1].result2,
+                                            dateTimeString,
+                                            dateString
+                                        )
+                                    } else {
+                                        history = History(
+                                            barcode,
+                                            shipmentList[0].result,
+                                            shipmentList[0].result2,
+                                            "",
+                                            "",
+                                            dateTimeString,
+                                            dateString
+                                        )
+                                    }
+
+                                    db!!.historyDao().insert(history)
+                                }
+
+
+                                //db!!.historyDao().update(history)
+
+
+
+                            } else {
+                                Log.e(mTAG, "db = null")
+                            }
+                        } else {
+                            Log.e(mTAG, "Not AX order")
                         }
 
 

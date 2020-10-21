@@ -6,6 +6,8 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'com.google.gms.google-services'
 
+apply plugin: 'kotlin-kapt'
+
 android {
     compileSdkVersion rootProject.compileSdkVersion
     //buildToolsVersion "29.0.2"
@@ -59,4 +61,7 @@ dependencies {
     implementation "com.google.firebase:firebase-ml-model-interpreter:$firebase_ml_model_interpreter"
     implementation "org.tensorflow:tensorflow-lite:$tensorflow_lite"
 
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
 }

@@ -44,6 +44,8 @@ buildscript {
         firebase_ml_vision_face_model = '20.0.2'
         firebase_ml_model_interpreter = '22.0.4'
         tensorflow_lite = '2.0.0'
+
+        room_version = '2.2.5'
     }
 
     repositories {

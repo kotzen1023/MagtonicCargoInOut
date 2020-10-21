@@ -37,7 +37,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".LicensePlateActivity" android:screenOrientation="portrait" />
-
+        <activity android:name=".ShowShipmentHistoryActivity" android:screenOrientation="portrait" />
     </application>
 
 </manifest>

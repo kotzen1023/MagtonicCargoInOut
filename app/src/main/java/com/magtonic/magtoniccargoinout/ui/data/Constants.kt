@@ -47,6 +47,8 @@ class Constants {
             const val ACTION_SHIPMENT_CHECK_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentCheckFailed"
             const val ACTION_SHIPMENT_CHECK_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentCheckSuccess"
             const val ACTION_SHIPMENT_CHECK_RETURN_EMPTY : String ="com.magtonic.MagtonicCargoInOut.ShipmentCheckReturnEmpty"
+            const val ACTION_SHIPMENT_SEARCH_HISTORY_BY_DATE_ACTION : String ="com.magtonic.MagtonicCargoInOut.ShipmentSearchHistoryByDateAction"
+            const val ACTION_SHIPMENT_SEARCH_HISTORY_BY_DATE_FINISH : String ="com.magtonic.MagtonicCargoInOut.ShipmentSearchHistoryByDateFinish"
         }
 
     }

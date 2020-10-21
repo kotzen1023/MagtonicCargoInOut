@@ -8,4 +8,9 @@
         android:visible="true"
         app:showAsAction="always"/>
 
+    <item android:id="@+id/main_shipment_history"
+        android:icon="@drawable/baseline_history_white_24"
+        android:title="@string/shipment_history"
+        android:visible="false"
+        app:showAsAction="collapseActionView"/>
 </menu>
