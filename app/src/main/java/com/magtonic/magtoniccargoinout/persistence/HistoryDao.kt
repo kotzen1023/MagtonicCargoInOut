@@ -18,8 +18,8 @@ interface HistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(history: History)
 
-    @Delete
-    fun delete(history: History)
+    //@Delete
+    //fun delete(history: History)
 
     @Update
     fun update(history: History)

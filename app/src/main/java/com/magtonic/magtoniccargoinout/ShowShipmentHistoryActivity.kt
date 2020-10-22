@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
+
 class ShowShipmentHistoryActivity : AppCompatActivity() {
     private val mTAG = ShowShipmentHistoryActivity::class.java.name
 
@@ -81,7 +82,9 @@ class ShowShipmentHistoryActivity : AppCompatActivity() {
                         Log.e(mTAG, "size = ${dateSelectHistoryList!!.size}")
 
                         if (dateSelectHistoryList!!.size > 0) {
+
                             dateSelectHistoryList = dateSelectHistoryList!!.sortedBy { it.getId() }.reversed() as ArrayList<History>
+
                         }
 
 
@@ -126,7 +129,15 @@ class ShowShipmentHistoryActivity : AppCompatActivity() {
 
             dateSelectHistoryList = MainActivity.db!!.historyDao().getHistoryByDate(currentDate) as ArrayList<History>
 
-            dateSelectHistoryList = dateSelectHistoryList!!.sortedBy { it.getId() }.reversed() as ArrayList<History>
+            if (dateSelectHistoryList != null && dateSelectHistoryList!!.size > 0) {
+                dateSelectHistoryList = dateSelectHistoryList!!.sortedBy { it.getTimeStamp() }.reversed() as ArrayList<History>
+            }
+            //Collections.reverse(dateSelectHistoryList)
+
+            for (i in 0 until dateSelectHistoryList!!.size) {
+                Log.e(mTAG, "dateSelectHistoryList[$i] = ${dateSelectHistoryList!![i].getBarcode()} timestamp = ${dateSelectHistoryList!![i].getTimeStamp()} ")
+            }
+
 
             historyAdapter = dateSelectHistoryList?.let {
                 HistoryAdapter(mContext, R.layout.shipmentcheck_list_item,

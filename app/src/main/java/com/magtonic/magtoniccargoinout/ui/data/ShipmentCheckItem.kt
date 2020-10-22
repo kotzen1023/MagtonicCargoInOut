@@ -1,6 +1,6 @@
 package com.magtonic.magtoniccargoinout.ui.data
 
-class ShipmenCheckItem (status: String, reason: String) {
+class ShipmentCheckItem (status: String, reason: String) {
     private var status: String? = status
     private var reason: String? = reason
 

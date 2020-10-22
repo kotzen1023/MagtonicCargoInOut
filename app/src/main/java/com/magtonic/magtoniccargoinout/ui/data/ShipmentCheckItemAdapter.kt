@@ -1,33 +1,29 @@
 package com.magtonic.magtoniccargoinout.ui.data
 
 import android.content.Context
-import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import com.magtonic.magtoniccargoinout.LicensePlateActivity
 import com.magtonic.magtoniccargoinout.R
 import java.util.ArrayList
 
-class ShipmenCheckItemAdapter(context: Context?, resource: Int, objects: ArrayList<ShipmenCheckItem>)  :
-    ArrayAdapter<ShipmenCheckItem>(context as Context, resource, objects) {
-    private val mTAG = ShipmenCheckItemAdapter::class.java.name
+class ShipmentCheckItemAdapter(context: Context?, resource: Int, objects: ArrayList<ShipmentCheckItem>)  :
+    ArrayAdapter<ShipmentCheckItem>(context as Context, resource, objects) {
+    private val mTAG = ShipmentCheckItemAdapter::class.java.name
     private val layoutResourceId: Int = resource
 
     private var inflater : LayoutInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    private val items: ArrayList<ShipmenCheckItem> = objects
+    private val items: ArrayList<ShipmentCheckItem> = objects
     private val mContext = context
 
     override fun getCount(): Int {
         return items.size
     }
 
-    override fun getItem(position: Int): ShipmenCheckItem? {
+    override fun getItem(position: Int): ShipmentCheckItem? {
         return items[position]
     }
 

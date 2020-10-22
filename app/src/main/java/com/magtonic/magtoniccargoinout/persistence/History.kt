@@ -4,8 +4,10 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+
+
 @Entity(tableName = History.TABLE_NAME)
-class History(barcode: String, workOrderState: String, workOrderDesc: String, shipmentState: String, shipmentDesc: String, datetime: String, date: String) {
+class History(barcode: String, workOrderState: String, workOrderDesc: String, shipmentState: String, shipmentDesc: String, datetime: String, date: String, timeStamp: Long)  {
     companion object {
         const val TABLE_NAME = "shipcheck"
     }
@@ -34,6 +36,9 @@ class History(barcode: String, workOrderState: String, workOrderDesc: String, sh
     @ColumnInfo(name = "date")
     private var date: String? = ""
 
+    @ColumnInfo(name = "timeStamp")
+    private var timeStamp: Long? = null
+
     init {
         this.barcode = barcode
         this.workOrderState = workOrderState
@@ -42,6 +47,8 @@ class History(barcode: String, workOrderState: String, workOrderDesc: String, sh
         this.shipmentDesc = shipmentDesc
         this.datetime = datetime
         this.date = date
+        this.timeStamp = timeStamp
+
     }
 
     fun getId(): Int {
@@ -103,4 +110,24 @@ class History(barcode: String, workOrderState: String, workOrderDesc: String, sh
     fun setDate(date: String) {
         this.date = date
     }
+
+    fun getTimeStamp(): Long? {
+        return timeStamp
+    }
+
+    fun setTimeStamp(timeStamp: Long) {
+        this.timeStamp = timeStamp
+    }
+
+    //fun getDateObject(): Date? {
+    //    return dateObject
+    //}
+
+    //fun setDateObject(dateObject: Date) {
+    //    this.dateObject = dateObject
+    //}
+
+    //override fun compareTo(other: History): Int {
+    //    return getTimeStamp()!!.compareTo(other.getTimeStamp() as Long)
+    //}
 }

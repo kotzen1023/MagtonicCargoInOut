@@ -1,12 +1,8 @@
 package com.magtonic.magtoniccargoinout.ui.shipment
 
-import android.app.Activity
 import android.content.*
 import android.graphics.Rect
-import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -15,18 +11,12 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.google.firebase.ml.vision.FirebaseVision
-import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import com.google.firebase.ml.vision.text.FirebaseVisionText
 import com.magtonic.magtoniccargoinout.MainActivity
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.db
-import com.magtonic.magtoniccargoinout.MainActivity.Companion.historyList
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.shipmentList
 import com.magtonic.magtoniccargoinout.R
 import com.magtonic.magtoniccargoinout.persistence.History
 import com.magtonic.magtoniccargoinout.ui.data.*
-import com.magtonic.magtoniccargoinout.ui.home.HomeFragment
-import com.magtonic.magtoniccargoinout.ui.ocr.OcrFragment
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -47,8 +37,8 @@ class ShipmentCheckFragment : Fragment() {
     private var mReceiver: BroadcastReceiver? = null
     private var isRegister = false
 
-    var shipmentCheckList = ArrayList<ShipmenCheckItem>()
-    private var shipmentCheckItemAdapter: ShipmenCheckItemAdapter? = null
+    var shipmentCheckList = ArrayList<ShipmentCheckItem>()
+    private var shipmentCheckItemAdapter: ShipmentCheckItemAdapter? = null
 
     private var poBarcode: String = ""
     private var poLine: String = ""
@@ -92,7 +82,7 @@ class ShipmentCheckFragment : Fragment() {
         listViewShipmentCheck = view.findViewById(R.id.listViewShipmentCheck)
 
         if (shipmentCheckContext != null) {
-            shipmentCheckItemAdapter = ShipmenCheckItemAdapter(shipmentCheckContext, R.layout.fragment_shipment_check_item, shipmentCheckList)
+            shipmentCheckItemAdapter = ShipmentCheckItemAdapter(shipmentCheckContext, R.layout.fragment_shipment_check_item, shipmentCheckList)
             listViewShipmentCheck!!.adapter = shipmentCheckItemAdapter
         }
 
@@ -254,7 +244,7 @@ class ShipmentCheckFragment : Fragment() {
                         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                         val dateString = date.format(c.time)
                         val dateTimeString = dateTime.format(c.time)
-
+                        val timeStamp= System.currentTimeMillis()
                         shipmentCheckList.clear()
 
                         progressBar!!.visibility = View.GONE
@@ -268,7 +258,7 @@ class ShipmentCheckFragment : Fragment() {
                         var statusSum = 0
 
                         for (rjShipment in shipmentList) {
-                            val shipmentCheckItem = ShipmenCheckItem(rjShipment.result, rjShipment.result2)
+                            val shipmentCheckItem = ShipmentCheckItem(rjShipment.result, rjShipment.result2)
 
                             statusSum += shipmentCheckItem.getStatus()!!.toInt()
 
@@ -312,6 +302,7 @@ class ShipmentCheckFragment : Fragment() {
 
                                     history.setDatetime(dateTimeString)
                                     history.setDate(dateString)
+                                    history.setTimeStamp(timeStamp)
                                     db!!.historyDao().update(history)
                                 } else {
                                     if (shipmentList.size == 2) {
@@ -322,7 +313,8 @@ class ShipmentCheckFragment : Fragment() {
                                             shipmentList[1].result,
                                             shipmentList[1].result2,
                                             dateTimeString,
-                                            dateString
+                                            dateString,
+                                            timeStamp
                                         )
                                     } else {
                                         history = History(
@@ -332,7 +324,8 @@ class ShipmentCheckFragment : Fragment() {
                                             "",
                                             "",
                                             dateTimeString,
-                                            dateString
+                                            dateString,
+                                            timeStamp
                                         )
                                     }
 
