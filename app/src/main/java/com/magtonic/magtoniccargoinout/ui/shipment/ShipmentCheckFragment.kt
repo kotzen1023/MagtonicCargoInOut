@@ -4,7 +4,7 @@ import android.content.*
 import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,7 +24,7 @@ class ShipmentCheckFragment : Fragment() {
     private val mTAG = ShipmentCheckFragment::class.java.name
     private var shipmentCheckContext: Context? = null
 
-    private var toastHandle: Toast? = null
+    //private var toastHandle: Toast? = null
 
 
     private var barcodeInput: EditText? = null
@@ -406,20 +406,7 @@ class ShipmentCheckFragment : Fragment() {
 
     }
 
-    private fun toast(message: String) {
 
-        if (toastHandle != null)
-            toastHandle!!.cancel()
-
-        val toast = Toast.makeText(shipmentCheckContext, message, Toast.LENGTH_SHORT)
-        toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL, 0, 0)
-        val group = toast.view as ViewGroup
-        val textView = group.getChildAt(0) as TextView
-        textView.textSize = 30.0f
-        toast.show()
-
-        toastHandle = toast
-    }
 
 
 }

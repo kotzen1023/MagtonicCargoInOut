@@ -63,7 +63,7 @@ class ShipmentCheckItemAdapter(context: Context?, resource: Int, objects: ArrayL
             holder.itemIcon.setImageResource(R.drawable.cross_red)
         }
 
-        holder.itemReason.text = shipmentCheckItem.getReason();
+        holder.itemReason.text = shipmentCheckItem.getReason()
 
 
         return view

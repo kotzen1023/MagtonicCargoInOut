@@ -1,16 +1,15 @@
 package com.magtonic.magtoniccargoinout
 
 import android.app.DatePickerDialog
-import android.content.BroadcastReceiver
+
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
+
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.AdapterView
+
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
@@ -18,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 import com.magtonic.magtoniccargoinout.data.HistoryAdapter
 import com.magtonic.magtoniccargoinout.persistence.History
-import com.magtonic.magtoniccargoinout.ui.data.Constants
+
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -29,8 +28,8 @@ class ShowShipmentHistoryActivity : AppCompatActivity() {
 
     private var mContext: Context? = null
 
-    private var mReceiver: BroadcastReceiver? = null
-    private var isRegister = false
+    //private var mReceiver: BroadcastReceiver? = null
+    //private var isRegister = false
 
     private var textViewDate: TextView?= null
     private var datePickBtn: Button?= null
@@ -162,7 +161,7 @@ class ShowShipmentHistoryActivity : AppCompatActivity() {
         }
 
 
-        val filter: IntentFilter
+        /*val filter: IntentFilter
 
         mReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -186,13 +185,13 @@ class ShowShipmentHistoryActivity : AppCompatActivity() {
             mContext?.registerReceiver(mReceiver, filter)
             isRegister = true
             Log.d(mTAG, "registerReceiver mReceiver")
-        }
+        }*/
     }
 
     override fun onDestroy() {
         Log.i(mTAG, "onDestroy")
 
-        if (isRegister && mReceiver != null) {
+        /*if (isRegister && mReceiver != null) {
             try {
                 mContext!!.unregisterReceiver(mReceiver)
             } catch (e: IllegalArgumentException) {
@@ -202,7 +201,7 @@ class ShowShipmentHistoryActivity : AppCompatActivity() {
             isRegister = false
             mReceiver = null
             Log.d(mTAG, "unregisterReceiver mReceiver")
-        }
+        }*/
 
         super.onDestroy()
     }

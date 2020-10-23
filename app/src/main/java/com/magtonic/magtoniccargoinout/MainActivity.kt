@@ -7,12 +7,10 @@ import android.app.AlertDialog
 
 import android.content.*
 import android.content.pm.PackageManager
-import android.net.NetworkInfo
+
+import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Message
+import android.os.*
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
@@ -25,9 +23,11 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.room.Room
@@ -48,7 +48,7 @@ import com.magtonic.magtoniccargoinout.persistence.History
 import com.magtonic.magtoniccargoinout.persistence.HistoryDataBase
 import com.magtonic.magtoniccargoinout.ui.data.Constants
 import com.magtonic.magtoniccargoinout.ui.home.HomeFragment
-import com.magtonic.magtoniccargoinout.ui.ocr.OcrFragment
+
 import com.magtonic.magtoniccargoinout.ui.shipment.ShipmentCheckFragment
 import okhttp3.Call
 import okhttp3.Callback
@@ -133,14 +133,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         //private class MyHandler(context: Context) : Handler() {
-        private class MyHandler : Handler() {
+        private class MyHandler : Handler(Looper.getMainLooper()) {
             //private var mFragment: WeakReference<Context> = WeakReference(context)
 
             override fun handleMessage(msg: Message) {
                 super.handleMessage(msg)
-                if (msg.what == 1) { //回到主執行緒執行結束操作
+                when (msg.what == 1) { //回到主執行緒執行結束操作
                     //Log.e("=====", "結束計時")
-
 
                 }
             }
@@ -178,9 +177,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var isBarcodeScanning: Boolean = false
     private var currentSearchPlant: String = "T"
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        mContext = applicationContext
 
         FirebaseApp.initializeApp(this)
 
@@ -193,7 +195,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Log.d(mTAG, "onCreate")
 
         val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M)
+        {
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+        } else {
+            //mContext!!.display!!.getMetrics(displayMetrics)
+            mContext!!.display!!.getRealMetrics(displayMetrics)
+        }
         screenHeight = displayMetrics.heightPixels
         screenWidth = displayMetrics.widthPixels
 
@@ -204,7 +212,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // guest read current plant
         currentPlant = pref!!.getString("CURRENT_PLANT", "T") as String
 
-        mContext = applicationContext
+
 
         //load db
         db = Room.databaseBuilder(mContext as Context, HistoryDataBase::class.java, HistoryDataBase.DATABASE_NAME)
@@ -508,10 +516,34 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if ("android.net.wifi.STATE_CHANGE" == intent.action) {
                     Log.e(mTAG, "Wifi STATE_CHANGE")
 
-                    val info: NetworkInfo? = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO)
+                    //val info: NetworkInfo? = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO)
 
-                    if (info!!.isConnected) {
-                        isWifiConnected = true
+                    val wifiMgr = mContext!!.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+                    //if (info!!.isConnected) {
+                    if (wifiMgr.isWifiEnabled) {
+
+                        val wifiInfo: WifiInfo = wifiMgr.connectionInfo
+                        if (wifiInfo.networkId == -1) {
+                            Log.d(mTAG, "Not connected to an access point")// Not connected to an access point
+                            //fabWifi!!.visibility = View.VISIBLE
+
+                            isWifiConnected = false
+                            currentSSID = ""
+                            Log.e(mTAG, "info ===> not connected ")
+                            //toast(getString(R.string.wifi_state_disconnected))
+                        } else {
+                            isWifiConnected = true
+
+                            currentSSID = wifiInfo.ssid
+
+                            Log.e(mTAG, "currentSSID = $currentSSID")
+                            //toast(getString(R.string.wifi_state_connected, currentSSID))
+                            //Log.d(mTAG, "Connected to ${wifiInfo.ssid}")// Not connected to an access point
+                            //fabWifi!!.visibility = View.GONE
+                        }
+
+                        /*isWifiConnected = true
                         Log.e(mTAG, "info ===> connected ")
                         val wifiManager: WifiManager = mContext!!.getSystemService(Context.WIFI_SERVICE) as WifiManager
                         val wifiInfo = wifiManager.connectionInfo
@@ -522,7 +554,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                         Log.e(mTAG, "rssi = $rssi, level = %$level, percentage = $percentage")
 
-                        currentSSID = wifiInfo.ssid
+                        currentSSID = wifiInfo.ssid*/
 
 
 
@@ -1057,15 +1089,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 Manifest.permission.CAMERA
                             )
                         ) {
-                            showDialogOK(
-                                DialogInterface.OnClickListener { _, which ->
+                            showDialogOK{ _, which ->
                                     when (which) {
                                         DialogInterface.BUTTON_POSITIVE -> checkAndRequestPermissions()
                                         DialogInterface.BUTTON_NEGATIVE ->
                                             // proceed with logic by disabling the related features or quit the app.
                                             finish()
                                     }
-                                })
+                            }
                         } else {
                             Toast.makeText(this, "Go to settings and enable permissions", Toast.LENGTH_LONG)
                                 .show()
@@ -1097,11 +1128,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             toastHandle!!.cancel()
         }
 
-        val toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
+        val toast = Toast.makeText(this, HtmlCompat.fromHtml("<h1>$message</h1>", HtmlCompat.FROM_HTML_MODE_COMPACT), Toast.LENGTH_LONG)
         toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL, 0, 0)
-        val group = toast.view as ViewGroup
+        /*val group = toast.view as ViewGroup
         val textView = group.getChildAt(0) as TextView
-        textView.textSize = 30.0f
+        textView.textSize = 30.0f*/
         toast.show()
 
         toastHandle = toast
@@ -1112,11 +1143,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (toastHandle != null)
             toastHandle!!.cancel()
 
-        val toast = Toast.makeText(this, message, Toast.LENGTH_LONG)
+        val toast = Toast.makeText(this, HtmlCompat.fromHtml("<h1>$message</h1>", HtmlCompat.FROM_HTML_MODE_COMPACT), Toast.LENGTH_LONG)
         toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL, 0, 0)
-        val group = toast.view as ViewGroup
+        /*val group = toast.view as ViewGroup
         val textView = group.getChildAt(0) as TextView
-        textView.textSize = 30.0f
+        textView.textSize = 30.0f*/
         toast.show()
         toastHandle = toast
     }
@@ -1685,8 +1716,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val btnConfirm = promptView.findViewById<Button>(R.id.btnDialogConfirm)
 
         textViewMsg.text = getString(R.string.version_string, BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
-        val msg = "1. 新增每隔1分鐘自動同步"
-        //msg += "2. 解決重複兩次barcode造成無法確認的問題\n"
+        var msg = "1. 新增每隔1分鐘自動同步"
+        msg += "2. 新增出貨檢查功能\n"
         //msg += "3. 新增\"設定\"讓使用者決定手動或自動確認"
         textViewFixMsg.text = msg
 

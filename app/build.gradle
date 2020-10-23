@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId "com.magtonic.magtoniccargoinout"
         versionCode 1
-        versionName "1.0"
+        versionName "1.1"
         //minSdkVersion 21
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
