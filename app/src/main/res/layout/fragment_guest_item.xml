@@ -13,9 +13,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_weight="2">
+            android:layout_weight="1">
 
-            <LinearLayout
+            <!--LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
@@ -33,7 +33,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:visibility="gone"/>
-            </LinearLayout>
+            </LinearLayout-->
 
             <TextView android:text="guestNo"
                 android:id="@+id/guestItemDetailData2"
@@ -57,7 +57,7 @@
             android:textSize="@dimen/text_size_30"
             android:gravity="center_vertical"
             android:paddingLeft="10dp"
-            android:layout_weight="3">
+            android:layout_weight="1">
         </TextView>
     </LinearLayout>
 

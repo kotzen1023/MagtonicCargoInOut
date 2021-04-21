@@ -17,9 +17,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.google.firebase.ml.vision.FirebaseVision
-import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import com.google.firebase.ml.vision.text.FirebaseVisionText
+//import com.google.firebase.ml.vision.FirebaseVision
+//import com.google.firebase.ml.vision.common.FirebaseVisionImage
+//import com.google.firebase.ml.vision.text.FirebaseVisionText
 import com.magtonic.magtoniccargoinout.R
 
 
@@ -75,7 +75,7 @@ class OcrFragment : Fragment() {
                 editText.setText("")
                 btnRecognize.isEnabled = false
                 val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-                val image = FirebaseVisionImage.fromBitmap(bitmap)
+                /*val image = FirebaseVisionImage.fromBitmap(bitmap)
                 val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
 
                 detector.processImage(image)
@@ -86,7 +86,7 @@ class OcrFragment : Fragment() {
                     .addOnFailureListener {
                         btnRecognize.isEnabled = true
                         editText.setText(getString(R.string.recognize_failed))
-                    }
+                    }*/
             } else {
                 toast("Select an Image First")
             }
@@ -157,7 +157,7 @@ class OcrFragment : Fragment() {
             editText.setText("")
             v.isEnabled = false
             val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-            val image = FirebaseVisionImage.fromBitmap(bitmap)
+            /*val image = FirebaseVisionImage.fromBitmap(bitmap)
             val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
 
             detector.processImage(image)
@@ -168,7 +168,7 @@ class OcrFragment : Fragment() {
                 .addOnFailureListener {
                     v.isEnabled = true
                     editText.setText("Failed")
-                }
+                }*/
         } else {
             toast("Select an Image First")
         }
@@ -176,7 +176,7 @@ class OcrFragment : Fragment() {
     }
 
 
-    private fun processResultText(resultText: FirebaseVisionText) {
+    /*private fun processResultText(resultText: FirebaseVisionText) {
         if (resultText.textBlocks.size == 0) {
             editText.setText("No Text Found")
             return
@@ -185,7 +185,7 @@ class OcrFragment : Fragment() {
             val blockText = block.text
             editText.append(blockText + "\n")
         }
-    }
+    }*/
 
     private fun openCamera() {
         val values = ContentValues()

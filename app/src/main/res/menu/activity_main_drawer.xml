@@ -20,6 +20,12 @@
             android:visible="true"/>
 
         <item
+            android:id="@+id/nav_signature"
+            android:icon="@drawable/baseline_edit_black_48"
+            android:title="@string/nav_signature"
+            android:visible="true"/>
+
+        <item
             android:id="@+id/nav_about"
             android:icon="@drawable/baseline_info_black_48"
             android:title="@string/nav_about"

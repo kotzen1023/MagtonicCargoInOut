@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content" android:orientation="horizontal" android:layout_width="fill_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <TextView android:text="header"
+            android:id="@+id/shipmentSignatureDetailHeader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textStyle="bold"
+            android:textColor="@color/md_black_1000"
+            android:textSize="@dimen/text_size_30"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:layout_weight="1"
+            android:minHeight="60dp">
+        </TextView>
+
+        <TextView android:text="content"
+            android:id="@+id/shipmentSignatureDetailContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="@dimen/text_size_25"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:layout_weight="1"
+            android:minHeight="60dp">
+        </TextView>
+    </LinearLayout>
+
+</LinearLayout>

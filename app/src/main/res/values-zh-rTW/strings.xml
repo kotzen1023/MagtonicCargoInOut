@@ -49,5 +49,26 @@
     <string name="detect_no_text_found">找不到文字</string>
     <string name="nav_shipment_check">出貨檢查</string>
     <string name="shipment_history">出貨檢查紀錄</string>
-
+    <string name="nav_signature">出貨簽名</string>
+    <string name="input_shipment_no">或輸入出貨單號</string>
+    <string name="shipment_input_no_empty">出貨單號為空，請輸入出貨單號。</string>
+    <string name="shipment_no_and_order_no">出貨單/訂單</string>
+    <string name="customer_no">客戶編號</string>
+    <string name="shipment_dialog_title">為此張出貨單簽名？</string>
+    <string name="btn_prev">上一步</string>
+    <string name="draw_clear_screen">清除</string>
+    <string name="draw_save_file">上傳</string>
+    <string name="shipment_sign_confirm">簽名確認</string>
+    <string name="draw_save_title">簽名存檔並上傳?</string>
+    <string name="connect_timeout">300 - 連線逾時。請檢查網路或防火牆設定。</string>
+    <string name="ftp_connect_error">連線錯誤。請檢查FTP帳號密碼</string>
+    <string name="shipment_signature_upload_failed">簽名上傳失敗</string>
+    <string name="shipment_signature_upload_success">簽名上傳成功. 請按簽名確認</string>
+    <string name="shipment_signature_confirm_failed">簽名確認失敗</string>
+    <string name="shipment_signature_confirm_success">簽名確認成功</string>
+    <string name="shipment_no">出貨單號</string>
+    <string name="shipment_signature_driver">司機</string>
+    <string name="shipment_signature_guard">守衛</string>
+    <string name="shipment_signature_let_driver_sign">請司機簽名</string>
+    <string name="shipment_signature_let_guard_sign">請守衛簽名</string>
 </resources>

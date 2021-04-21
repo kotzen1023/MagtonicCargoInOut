@@ -50,4 +50,26 @@
     <string name="detect_no_text_found">No text found</string>
     <string name="nav_shipment_check">Shipment Check</string>
     <string name="shipment_history">history</string>
+    <string name="nav_signature">Shipment Signing</string>
+    <string name="input_shipment_no">input shipment no</string>
+    <string name="shipment_input_no_empty">Shipment No Empty</string>
+    <string name="shipment_no_and_order_no">S.P No./Order No.</string>
+    <string name="customer_no">Customer</string>
+    <string name="shipment_dialog_title">Sign for this Shipment No?</string>
+    <string name="btn_prev">Prev</string>
+    <string name="draw_clear_screen">Clean</string>
+    <string name="draw_save_file">Save</string>
+    <string name="shipment_sign_confirm">Signature Confirm</string>
+    <string name="draw_save_title">Save signature and upload?</string>
+    <string name="connect_timeout">Connectiton timeout. Please check your network or firewall configuration.</string>
+    <string name="ftp_connect_error">Connect error. Please confirm your account and password.</string>
+    <string name="shipment_signature_upload_failed">Sign upload failed</string>
+    <string name="shipment_signature_upload_success">Sign upload success</string>
+    <string name="shipment_signature_confirm_failed">Sign upload confirm failed</string>
+    <string name="shipment_signature_confirm_success">Sign upload confirm success</string>
+    <string name="shipment_no">Shipment No.</string>
+    <string name="shipment_signature_driver">Driver</string>
+    <string name="shipment_signature_guard">Guard</string>
+    <string name="shipment_signature_let_driver_sign">Driver Sign</string>
+    <string name="shipment_signature_let_guard_sign">Guard Sign</string>
 </resources>

@@ -278,12 +278,14 @@ class ShipmentCheckFragment : Fragment() {
                             imageView!!.visibility = View.GONE
                         }
 
+                        //history
+
                         val firstFour = barcode!!.substring(0, 4)
 
                         if (firstFour == "AX30") {
                             //db
                             if (db != null) {
-                                history = db!!.historyDao().getHistoryByBarcode(barcode as String)
+                                history = db!!.historyDao().getHistoryByBarcode(barcode)
 
                                 if (history != null) {
                                     Log.e(mTAG, "shipmentList.size = ${shipmentList.size}")
@@ -351,6 +353,36 @@ class ShipmentCheckFragment : Fragment() {
                             shipmentCheckItemAdapter?.notifyDataSetChanged()
                         }
 
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_FRAGMENT_NOT_COMPLETE_BIKE, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_FRAGMENT_NOT_COMPLETE_BIKE")
+
+                        shipmentCheckList.clear()
+
+                        progressBar!!.visibility = View.GONE
+                        //hide keyboard
+                        if (MainActivity.isKeyBoardShow) {
+                            val hideIntent = Intent()
+                            hideIntent.action = Constants.ACTION.ACTION_HIDE_KEYBOARD
+                            shipmentCheckContext!!.sendBroadcast(hideIntent)
+                        }
+
+                        //var statusSum = 0
+
+                        val shipmentCheckItem = ShipmentCheckItem("0", "非成車出貨")
+                        shipmentCheckList.add(shipmentCheckItem)
+
+
+                        //Log.e(mTAG, "statusSum = $statusSum")
+
+                        imageView!!.setImageResource(R.drawable.circle_green)
+                        imageView!!.visibility = View.VISIBLE
+
+                        if (shipmentCheckItemAdapter != null) {
+                            shipmentCheckItemAdapter?.notifyDataSetChanged()
+                        }
+
+
+
                     }
 
                 }
@@ -365,7 +397,7 @@ class ShipmentCheckFragment : Fragment() {
             filter.addAction(Constants.ACTION.ACTION_SERVER_ERROR)
             filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SCAN_BARCODE)
             filter.addAction(Constants.ACTION.ACTION_SHIPMENT_FRAGMENT_REFRESH)
-
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_FRAGMENT_NOT_COMPLETE_BIKE)
 
             //filter.addAction(Constants.ACTION.ACTION_RECEIPT_ALREADY_UPLOADED_SEND_TO_FRAGMENT)
             shipmentCheckContext?.registerReceiver(mReceiver, filter)

@@ -7,6 +7,7 @@ import android.app.AlertDialog
 
 import android.content.*
 import android.content.pm.PackageManager
+import android.graphics.Color
 
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
@@ -31,25 +32,23 @@ import androidx.core.text.HtmlCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.FirebaseApp
 import com.google.gson.Gson
 import com.magtonic.magtoniccargoinout.api.ApiFunc
 import com.magtonic.magtoniccargoinout.model.item.ItemGuest
 import com.magtonic.magtoniccargoinout.model.item.ItemReceipt
-import com.magtonic.magtoniccargoinout.model.receive.RJGuest
-import com.magtonic.magtoniccargoinout.model.receive.RJShipment
-import com.magtonic.magtoniccargoinout.model.receive.ReceiveTransform
-import com.magtonic.magtoniccargoinout.model.send.HttpGuestInOrOutMultiPara
-import com.magtonic.magtoniccargoinout.model.send.HttpGuestNotLeaveGetPara
-import com.magtonic.magtoniccargoinout.model.send.HttpReceiptGetPara
-import com.magtonic.magtoniccargoinout.model.send.HttpShipmentPara
+import com.magtonic.magtoniccargoinout.model.receive.*
+import com.magtonic.magtoniccargoinout.model.send.*
 import com.magtonic.magtoniccargoinout.model.sys.ScanBarcode
-import com.magtonic.magtoniccargoinout.persistence.History
 import com.magtonic.magtoniccargoinout.persistence.HistoryDataBase
 import com.magtonic.magtoniccargoinout.ui.data.Constants
 import com.magtonic.magtoniccargoinout.ui.home.HomeFragment
 
 import com.magtonic.magtoniccargoinout.ui.shipment.ShipmentCheckFragment
+import com.magtonic.magtoniccargoinout.ui.signature.ShipmentSignatureFragment
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
@@ -63,10 +62,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val requestIdMultiplePermission = 1
 
     enum class CurrentFragment {
-        HOME_FRAGMENT, SHIPMENT_CHECK_FRAGMENT
+        HOME_FRAGMENT, SHIPMENT_CHECK_FRAGMENT, SHIPMENT_SIGNATURE_FRAGMENT
     }
 
     var currentFrag: CurrentFragment = CurrentFragment.HOME_FRAGMENT
+
+    enum class SignState {
+        INITIAL,
+        DRIVER_UPLOADED,
+        GUARD_UPLOADED,
+        DRIVER_CONFIRM,
+        GUARD_CONFIRM
+
+    }
 
     var pref: SharedPreferences? = null
     var editor: SharedPreferences.Editor? = null
@@ -82,6 +90,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var menuItemKeyboard: MenuItem? = null
     private var menuItemShipmentHistory: MenuItem? = null
 
+    @SuppressLint("StaticFieldLeak")
     companion object {
         @JvmStatic var screenWidth: Int = 0
         @JvmStatic var screenHeight: Int = 0
@@ -96,10 +105,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         @JvmStatic var guestListB: ArrayList<RJGuest> = ArrayList()
         @JvmStatic var currentPlant: String = "T"
 
+        //timeout
+        @JvmStatic var timeOutSeconds: Long = 60
+
         //shipment check
         @JvmStatic var shipmentList: ArrayList<RJShipment> = ArrayList()
+        @JvmStatic var signatureList: ArrayList<RJSignature> = ArrayList()
+        @JvmStatic var signatureDetailList: ArrayList<RJSignatureDetail> = ArrayList()
+        @JvmStatic var currentShipmentNo: String = ""
+        @JvmStatic var isShipmentSignatureInDetail: Int = 0
+
+        @JvmStatic var isEraser: Boolean = false
+        @JvmStatic var penColor: Int = Color.BLACK
+        @JvmStatic var penWidth: Float = 10f
+
+        @JvmStatic var base64: String = ""
+
+        @JvmStatic var signState: SignState = SignState.INITIAL
+
         var db: HistoryDataBase? = null
-        @JvmStatic var historyList: ArrayList<History>? = null
+        //@JvmStatic var historyList: ArrayList<History>? = null
         //timer
         private var handler: MyHandler? = null
         //private var guestContext: Context? = null
@@ -177,6 +202,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var isBarcodeScanning: Boolean = false
     private var currentSearchPlant: String = "T"
 
+    var fabBack: FloatingActionButton? = null
+    var fabSign: FloatingActionButton? = null
+
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -212,11 +240,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // guest read current plant
         currentPlant = pref!!.getString("CURRENT_PLANT", "T") as String
 
-
+        val migration12 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                //database.execSQL("ALTER TABLE '"+History.TABLE_NAME+"' ADD COLUMN 'timeStamp' LONG NOT NULL DEFAULT 0")
+            }
+        }
 
         //load db
         db = Room.databaseBuilder(mContext as Context, HistoryDataBase::class.java, HistoryDataBase.DATABASE_NAME)
             .allowMainThreadQueries()
+            .addMigrations(migration12)
             .build()
 
         //for timer
@@ -277,8 +310,49 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //initLog()
         }
 
+        fabBack = findViewById(R.id.fabBack)
+        fabBack!!.setOnClickListener {
+            Log.d(mTAG, "===> fabBack")
+
+            when (currentFrag) {
+
+                CurrentFragment.SHIPMENT_SIGNATURE_FRAGMENT -> {
+                    if (isShipmentSignatureInDetail == 1) {
+                        fabBack!!.visibility = View.GONE
+                        fabSign!!.visibility = View.GONE
+
+                        isShipmentSignatureInDetail = 0
+
+                        val backIntent = Intent()
+                        backIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_BACK_TO_SHIPMENT_NO_LIST
+                        sendBroadcast(backIntent)
+                    }
+                }
+
+                else -> {
+                    Log.e(mTAG, "Unknown fragment")
+                }
+            }
+        }
+
+        fabSign = findViewById(R.id.fabSign)
+        fabSign!!.setOnClickListener {
+            val showIntent = Intent()
+            when (currentFrag) {
+                CurrentFragment.SHIPMENT_SIGNATURE_FRAGMENT -> {
+                    showIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SHOW_SIGN_DIALOG_ACTION
+                }
+                else -> {
+                    Log.e(mTAG, "Unknown Fragment")
+                }
+            }
+
+            sendBroadcast(showIntent)
+
+        }
+
         //load from db
-        if (db != null) {
+        /*if (db != null) {
             if (historyList != null) {
                 historyList!!.clear()
             } else {
@@ -315,7 +389,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         } else {
             Log.e(mTAG, "db = null")
-        }
+        }*/
 
         val filter: IntentFilter
         @SuppressLint("CommitPrefEdits")
@@ -462,7 +536,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                                 if (barcode != null) {
 
-                                    getShipmentCheckMulti(barcode)
+
+                                    val firstFourStr = inputNo.substring(0, 4)
+                                    Log.e(mTAG, "firstFourStr = $firstFourStr")
+
+                                    if (firstFourStr == "AX30") {
+                                        getShipmentCheckMulti(barcode)
+                                    } else {
+                                        val scanIntent = Intent()
+                                        scanIntent.action = Constants.ACTION.ACTION_SHIPMENT_FRAGMENT_NOT_COMPLETE_BIKE
+                                        sendBroadcast(scanIntent)
+                                    }
+
+
+                                    //getShipmentCheckMulti(barcode)
                                     /*when (currentFrag) {
                                         CurrentFragment.RECEIPT_FRAGMENT -> {
                                             //checkIfReceiptUploaded(barcode)
@@ -509,6 +596,57 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             Log.e(mTAG, "inputNo = null")
                         }
 
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_EMPTY, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_EMPTY")
+
+                        toast(getString(R.string.shipment_input_no_empty))
+
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_ACTION, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_ACTION")
+
+                        fabBack!!.visibility = View.GONE
+                        fabSign!!.visibility = View.GONE
+
+                        val inputDate = intent.getStringExtra("INPUT_DATE")
+                        val inputNo = intent.getStringExtra("INPUT_NO")
+
+                        Log.e(mTAG, "inputDate = $inputDate, inputNo = $inputNo")
+
+                        getShipmentSignatureMulti(inputDate as String, inputNo as String)
+
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SEARCH_DETAIL_ACTION, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_SEARCH_DETAIL_ACTION")
+
+                        val shipmentNo = intent.getStringExtra("SHIPMENT_NO")
+
+                        Log.e(mTAG, "shipmentNo = $shipmentNo")
+
+                        getShipmentSignatureDetail(shipmentNo as String)
+
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_HIDE_FAB_BACK, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_HIDE_FAB_BACK")
+
+                        fabSign!!.visibility = View.GONE
+                        fabBack!!.visibility = View.GONE
+                        isShipmentSignatureInDetail = 0
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_ACTION, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_UPLOAD_ACTION")
+
+                        val sendOrder = intent.getStringExtra("SEND_ORDER")
+                        val uploadSignFileName = intent.getStringExtra("SIGN_FILE_NAME")
+
+                        currentShipmentNo = sendOrder as String
+
+                        confirmShipmentSignature(sendOrder , uploadSignFileName as  String, "user", "1")
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_ACTION, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_ACTION")
+
+                        val sendOrder = intent.getStringExtra("SEND_ORDER")
+                        val uploadSignFileName = intent.getStringExtra("SIGN_FILE_NAME")
+
+                        currentShipmentNo = sendOrder as String
+
+                        confirmShipmentSignature(sendOrder , uploadSignFileName as  String, "user", "2")
                     }
                 }
 
@@ -661,6 +799,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                         CurrentFragment.HOME_FRAGMENT-> {
                                             val scanIntent = Intent()
                                             scanIntent.action = Constants.ACTION.ACTION_GUEST_SCAN_BARCODE
+                                            scanIntent.putExtra("BARCODE_BY_SCAN", barcode!!.poBarcodeByScan)
                                             scanIntent.putExtra("BARCODE", barcode!!.poBarcode)
                                             scanIntent.putExtra("LINE", barcode!!.poLine)
                                             sendBroadcast(scanIntent)
@@ -668,12 +807,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                         }
 
                                         CurrentFragment.SHIPMENT_CHECK_FRAGMENT-> {
-                                            val scanIntent = Intent()
-                                            scanIntent.action = Constants.ACTION.ACTION_SHIPMENT_SCAN_BARCODE
-                                            scanIntent.putExtra("BARCODE", barcode!!.poBarcodeByScan)
-                                            scanIntent.putExtra("LINE", barcode!!.poLine)
-                                            sendBroadcast(scanIntent)
-                                            getShipmentCheckMulti(barcode)
+
+                                            val firstFourStr = text.substring(0, 4)
+                                            Log.e(mTAG, "firstFourStr = $firstFourStr")
+
+                                            if (firstFourStr == "AX30") {
+                                                val scanIntent = Intent()
+                                                scanIntent.action = Constants.ACTION.ACTION_SHIPMENT_SCAN_BARCODE
+                                                scanIntent.putExtra("BARCODE", barcode!!.poBarcodeByScan)
+                                                scanIntent.putExtra("LINE", barcode!!.poLine)
+                                                sendBroadcast(scanIntent)
+                                                getShipmentCheckMulti(barcode)
+                                            } else {
+                                                val scanIntent = Intent()
+                                                scanIntent.action = Constants.ACTION.ACTION_SHIPMENT_FRAGMENT_NOT_COMPLETE_BIKE
+                                                sendBroadcast(scanIntent)
+                                                isBarcodeScanning = false
+                                            }
+
+
                                         }
                                     }
 
@@ -724,6 +876,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             filter.addAction(Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE)
             //shipment
             filter.addAction(Constants.ACTION.ACTION_SHIPMENT_CHECK_ACTION)
+            //signature
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_EMPTY)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_ACTION)
+            //signature detail
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SEARCH_DETAIL_ACTION)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_HIDE_FAB_BACK)
+            //sign upload confirm
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_ACTION)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_ACTION)
 
             filter.addAction("android.net.wifi.STATE_CHANGE")
             filter.addAction("android.net.wifi.WIFI_STATE_CHANGED")
@@ -842,6 +1003,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         navView!!.menu.getItem(0).isChecked = false //home
         navView!!.menu.getItem(1).isChecked = false //shipment check
+        navView!!.menu.getItem(2).isChecked = false //shipment signature
 
         when (menuItem.itemId) {
             R.id.nav_home -> {
@@ -861,12 +1023,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 menuItemShipmentHistory!!.isVisible = true
                 title = getString(R.string.nav_shipment_check)
             }
-            /*R.id.nav_text -> {
-                fragmentClass = OcrFragment::class.java
+            R.id.nav_signature -> {
+                currentFrag = CurrentFragment.SHIPMENT_SIGNATURE_FRAGMENT
+                fragmentClass = ShipmentSignatureFragment::class.java
                 menuItem.isChecked = true
 
-                title = getString(R.string.nav_text)
-            }*/
+                menuItemShipmentHistory!!.isVisible = false
+                title = getString(R.string.nav_signature)
+            }
 
             R.id.nav_about -> {
                 showCurrentVersionDialog()
@@ -1173,6 +1337,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
+    fun checkServerErrorString(res: String): Boolean {
+        var ret = false
+        if (res.contains("System.OutOfMemoryException")) {
+            ret = true
+        }
+
+        return ret
+    }
+
     fun getReceipt(barcode: ScanBarcode?) {
         // go for : 1.get barcode  2.call get Receipt Api ,3.update list ,4. restore input mode
         //1.
@@ -1186,11 +1359,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Log.e(mTAG, "getReceipt poBarcode = "+barcode.poBarcode+ ", poLine = "+barcode.poLine)
             // to call api
             //acState = ReceiptACState.RECEIPT_GETTING_STATE
-            val para = HttpReceiptGetPara()
+
+            /*val para = HttpReceiptGetPara()
             para.pmn01 = barcode.poBarcode
             para.pmn02 = barcode.poLine
 
-            ApiFunc().getReceipt(para, getReceiptCallback)
+            ApiFunc().getReceipt(para, getReceiptCallback)*/
+            when {
+                barcode.poBarcodeByScan.length >= 16 -> {
+                    val para = HttpReceiptGetPara()
+                    para.pmn01 = barcode.poBarcode
+                    para.pmn02 = barcode.poLine
+
+                    ApiFunc().getReceipt(para, getReceiptCallback)
+                }
+                barcode.poBarcodeByScan.length == 13 -> {
+                    val para = HttpReceiptPointGetPara()
+                    para.pmn01 = barcode.poBarcodeByScan
+                    para.pmn02 = "0"
+
+                    ApiFunc().getReceiptPoint(para, getReceiptPointCallback)
+                }
+                else -> {
+                    val unknownIntent = Intent()
+                    unknownIntent.action = Constants.ACTION.ACTION_RECEIPT_UNKNOWN_BARCODE_LENGTH
+                    sendBroadcast(unknownIntent)
+                }
+            }
 
         }
 
@@ -1263,6 +1458,121 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         val receiptNoIntent = Intent()
                         receiptNoIntent.action = Constants.ACTION.ACTION_RECEIPT_NO_NOT_EXIST
                         sendBroadcast(receiptNoIntent)
+                    }
+
+
+                } catch (ex: Exception) {
+
+                    Log.e(mTAG, "Server error")
+
+                    val serverErrorIntent = Intent()
+                    serverErrorIntent.action = Constants.ACTION.ACTION_SERVER_ERROR
+                    sendBroadcast(serverErrorIntent)
+                    //system error
+                    runOnUiThread {
+
+                        toast(getString(R.string.toast_server_error))
+                    }
+                }
+                isBarcodeScanning = false
+            }
+
+
+        }//onResponse
+    }
+
+    private var getReceiptPointCallback: Callback = object : Callback {
+
+        override fun onFailure(call: Call, e: IOException) {
+            Log.e(mTAG, "getReceiptPointCallback err msg = $e")
+            isBarcodeScanning = false
+            val errorArray = e.toString().split(": ")
+
+            if (errorArray.size > 1) {
+                Log.e(mTAG, "[1] = ${errorArray[1]}")
+            }
+
+
+            val failIntent = Intent()
+
+            if (errorArray.size > 1 && errorArray[1] == "No route to host" ) {
+                failIntent.action = Constants.ACTION.ACTION_CONNECTION_NO_ROUTE_TO_HOST
+            } else {
+                failIntent.action = Constants.ACTION.ACTION_CONNECTION_TIMEOUT
+            }
+
+            runOnUiThread {
+                sendBroadcast(failIntent)
+            }
+
+        }
+
+        @Throws(IOException::class)
+        override fun onResponse(call: Call, response: Response) {
+            Log.e(mTAG, "onResponse : "+response.body.toString())
+            val res = ReceiveTransform.restoreToJsonStr(response.body!!.string())
+            //Log.e(mTAG, "res = $res")
+            //1.get response ,2 error or right , 3 update ui ,4. restore acState 5. update fragment detail
+            runOnUiThread {
+                try {
+                    if (!checkServerErrorString(res)) {
+                        val retItemReceipt = ItemReceipt.transRJReceiptStrToItemReceiptPoint(
+                            res,
+                            barcode!!.poBarcodeByScan
+                        )
+
+
+                        if (retItemReceipt != null) {
+                            if (!retItemReceipt.rjReceipt?.result.equals(ItemReceipt.RESULT_CORRECT)) {
+                                Log.e(
+                                    mTAG,
+                                    "result = " + retItemReceipt.rjReceipt?.result + " result2 = " + retItemReceipt.rjReceipt?.result2
+                                )
+                                //can't receive the item
+                                //val mess = retItemReceipt.poNumScanTotal + " " + retItemReceipt.rjReceipt?.result2
+                                val mess = retItemReceipt.rjReceipt?.result2 as String
+                                toastLong(mess)
+
+
+                                val receiptNoIntent = Intent()
+                                receiptNoIntent.action =
+                                    Constants.ACTION.ACTION_RECEIPT_NO_NOT_EXIST
+                                sendBroadcast(receiptNoIntent)
+                            }// result  = 0
+                            else {
+                                // success receive ,update list ,update fragment
+                                //if(Fristpmc3.equals("") || Fristpmm02.equals("") || Fristpmc3.equals(itemReceipt.rjReceipt.pmc03) || Fristpmm02.equals(itemReceipt.rjReceipt.pmm02)) {
+
+                                //multi
+                                /*if (ReceiptList.size() > 0 ) {
+                                ReceiptList.removeAllItem()
+                            }
+
+                            addResult = ReceiptList.add(retItemReceipt)
+                            itemReceipt = ReceiptList.getReceiptItem(0)*/
+
+                                //single
+                                itemReceipt = retItemReceipt
+
+                                Log.e(mTAG, "2")
+                                val refreshIntent = Intent()
+                                refreshIntent.action =
+                                    Constants.ACTION.ACTION_RECEIPT_FRAGMENT_REFRESH
+                                //refreshIntent.putExtra("RVA06", rva06)
+                                mContext!!.sendBroadcast(refreshIntent)
+
+                            }//result = 1
+                        } else {
+                            Log.e(mTAG, "retItemReceipt = null")
+
+                            toast(getString(R.string.receipt_this_receipt_not_exist))
+
+                            val receiptNoIntent = Intent()
+                            receiptNoIntent.action = Constants.ACTION.ACTION_RECEIPT_NO_NOT_EXIST
+                            sendBroadcast(receiptNoIntent)
+                        }
+                    } else { //checkServerErrorString true
+                        toast(getString(R.string.toast_server_error))
                     }
 
 
@@ -1574,7 +1884,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Log.e(mTAG, "=== getGuestMulti start ===")
             Log.e(mTAG, "barcode poBarcode = ${barcode.poBarcodeByScan},  poLine = ${barcode.poLine} ===")
             val para = HttpShipmentPara()
-            para.data1 = barcode.poBarcodeByScan
+            para.data1 = barcode.poBarcode
             Log.e(mTAG, "barcode.poLine = ${barcode.poLine.toInt()}")
             para.data2 = barcode.poLine.toInt().toString()
             ApiFunc().getShipmentCheckMulti(para, getShipmentCheckMultiCallback)
@@ -1639,6 +1949,291 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     //sendBroadcast(failIntent)
                 }
                 isBarcodeScanning = false
+            }
+
+
+        }//onResponse
+    }
+
+    fun getShipmentSignatureMulti(shipmentDate: String, shipmentNo: String) {
+
+        Log.e(mTAG, "=== getShipmentSignatureMulti start ===")
+
+        val para = HttpShipmentSignaturePara()
+        para.data1 = shipmentDate
+        para.data2 = shipmentNo
+        ApiFunc().getShipmentSignatureMulti(para, getShipmentSignatureMultiCallback)
+
+    }
+
+    private var getShipmentSignatureMultiCallback: Callback = object : Callback {
+
+        override fun onFailure(call: Call, e: IOException) {
+            isBarcodeScanning = false
+            runOnUiThread(netErrRunnable)
+        }
+
+        @Throws(IOException::class)
+        override fun onResponse(call: Call, response: Response) {
+            Log.e(mTAG, "onResponse : "+response.body.toString())
+            val jsonStr = ReceiveTransform.restoreXmlToJson(response.body!!.string())
+            Log.e(mTAG, "jsonStr = $jsonStr")
+            //val res = ReceiveTransform.restoreToJsonStr(response.body()!!.string())
+            //1.get response ,2 error or right , 3 update ui ,4. restore acState 5. update fragment detail
+            runOnUiThread {
+                try {
+                    signatureList.clear()
+                    val rjSignatureList = Gson().fromJson(jsonStr, ReceiveTransform.RJSignatureList::class.java)
+                    Log.e(mTAG, "rjSignatureList.dataList.size = " + rjSignatureList.dataList.size)
+
+                    if (rjSignatureList.dataList.size > 0) {
+
+                        Log.e(mTAG, "=== signatureList start ===")
+
+                        if (rjSignatureList.dataList.size == 1) {
+
+                            if (rjSignatureList.dataList[0].result == "0") { //0 success
+                                for (rjSignature in rjSignatureList.dataList) {
+                                    signatureList.add(rjSignature)
+                                }
+
+                                val refreshIntent = Intent()
+                                refreshIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_FRAGMENT_REFRESH
+                                //refreshIntent.putExtra("BARCODE", barcode!!.poBarcodeByScan)
+                                mContext!!.sendBroadcast(refreshIntent)
+                            } else {
+
+                                toastLong(rjSignatureList.dataList[0].result2)
+
+                                val errorIntent = Intent()
+                                errorIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_FAILED
+                                //errorIntent.putExtra("result2", rjSignatureList.dataList[0].result2)
+                                mContext!!.sendBroadcast(errorIntent)
+
+
+                            }
+
+                        } else {
+                            for (rjSignature in rjSignatureList.dataList) {
+                                signatureList.add(rjSignature)
+                            }
+
+                            val refreshIntent = Intent()
+                            refreshIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_FRAGMENT_REFRESH
+                            //refreshIntent.putExtra("BARCODE", barcode!!.poBarcodeByScan)
+                            mContext!!.sendBroadcast(refreshIntent)
+
+                            Log.e(mTAG, "=== signatureList end ===")
+                        }
+
+
+
+
+
+
+
+
+
+
+                    } else { //size == 0
+                        val noExistIntent = Intent()
+                        noExistIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_RETURN_EMPTY
+                        mContext!!.sendBroadcast(noExistIntent)
+
+
+                    }
+
+
+                } catch (e: Exception) {
+                    Log.e(mTAG, "ex = $e")
+                    //system error
+                    //toast(getString(R.string.toast_server_error))
+                    //val failIntent = Intent()
+                    //failIntent.action = Constants.ACTION.ACTION_SERVER_ERROR
+                    //sendBroadcast(failIntent)
+                }
+                isBarcodeScanning = false
+            }
+
+
+        }//onResponse
+    }
+
+    fun getShipmentSignatureDetail(shipmentNo: String) {
+
+        Log.e(mTAG, "=== getShipmentSignatureDetail start ===")
+
+        val para = HttpShipmentSignatureDetailPara()
+        para.data1 = shipmentNo
+
+        ApiFunc().getShipmentSignatureDetail(para, getShipmentSignatureDetailCallback)
+
+    }
+
+    private var getShipmentSignatureDetailCallback: Callback = object : Callback {
+
+        override fun onFailure(call: Call, e: IOException) {
+            isBarcodeScanning = false
+            runOnUiThread(netErrRunnable)
+        }
+
+        @Throws(IOException::class)
+        override fun onResponse(call: Call, response: Response) {
+            Log.e(mTAG, "onResponse : "+response.body.toString())
+            val jsonStr = ReceiveTransform.restoreXmlToJson(response.body!!.string())
+            Log.e(mTAG, "jsonStr = $jsonStr")
+            //val res = ReceiveTransform.restoreToJsonStr(response.body()!!.string())
+            //1.get response ,2 error or right , 3 update ui ,4. restore acState 5. update fragment detail
+            runOnUiThread {
+                try {
+                    signatureDetailList.clear()
+                    val rjSignatureDetailList = Gson().fromJson(jsonStr, ReceiveTransform.RJSignatureDetailList::class.java)
+                    Log.e(mTAG, "rjSignatureDetailList.dataList.size = " + rjSignatureDetailList.dataList.size)
+
+                    if (rjSignatureDetailList.dataList.size > 0) {
+
+                        Log.e(mTAG, "=== signatureDetailList start ===")
+
+                        if (rjSignatureDetailList.dataList.size == 1) {
+
+                            if (rjSignatureDetailList.dataList[0].result == "0") { //0 success
+                                for (rjSignatureDetail in rjSignatureDetailList.dataList) {
+                                    signatureDetailList.add(rjSignatureDetail)
+                                }
+
+                                fabBack!!.visibility = View.VISIBLE
+                                fabSign!!.visibility = View.VISIBLE
+
+                                val refreshIntent = Intent()
+                                refreshIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DETAIL_FRAGMENT_REFRESH
+                                //refreshIntent.putExtra("BARCODE", barcode!!.poBarcodeByScan)
+                                mContext!!.sendBroadcast(refreshIntent)
+
+
+                            } else {
+
+                                toastLong(rjSignatureDetailList.dataList[0].result2)
+
+                                val errorIntent = Intent()
+                                errorIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SEARCH_DETAIL_FAILED
+                                //errorIntent.putExtra("result2", rjSignatureList.dataList[0].result2)
+                                mContext!!.sendBroadcast(errorIntent)
+
+
+                            }
+
+                        } else {
+                            for (rjSignatureDetail in rjSignatureDetailList.dataList) {
+                                signatureDetailList.add(rjSignatureDetail)
+                            }
+
+                            fabBack!!.visibility = View.VISIBLE
+                            fabSign!!.visibility = View.VISIBLE
+
+                            val refreshIntent = Intent()
+                            refreshIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DETAIL_FRAGMENT_REFRESH
+                            //refreshIntent.putExtra("BARCODE", barcode!!.poBarcodeByScan)
+                            mContext!!.sendBroadcast(refreshIntent)
+
+                            Log.e(mTAG, "=== signatureList end ===")
+                        }
+
+
+                    } else { //size == 0
+                        val noExistIntent = Intent()
+                        noExistIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DETAIL_RETURN_EMPTY
+                        mContext!!.sendBroadcast(noExistIntent)
+
+
+                    }
+
+
+                } catch (e: Exception) {
+                    Log.e(mTAG, "ex = $e")
+                    //system error
+                    //toast(getString(R.string.toast_server_error))
+                    //val failIntent = Intent()
+                    //failIntent.action = Constants.ACTION.ACTION_SERVER_ERROR
+                    //sendBroadcast(failIntent)
+                }
+                isBarcodeScanning = false
+            }
+
+
+        }//onResponse
+    }
+
+    fun confirmShipmentSignature(returnOrder: String, signFileName: String, userName: String, type: String) {
+        Log.e(mTAG, "=== confirmShipmentSignature start ===")
+
+        Log.e(mTAG, "returnOrder = $returnOrder, signFileName = $signFileName, userName = $userName, type = $type")
+
+        val para = HttpShipmentSignatureConfirmPara()
+        para.data1 = returnOrder
+        para.data2 = signFileName
+        para.data3 = userName
+        para.data4 = type
+        ApiFunc().getShipmentSignatureConfirm(para, confirmShipmentSignatureCallback)
+    }
+
+    private var confirmShipmentSignatureCallback: Callback = object : Callback {
+
+        override fun onFailure(call: Call, e: IOException) {
+
+            runOnUiThread(netErrRunnable)
+        }
+
+        @Throws(IOException::class)
+        override fun onResponse(call: Call, response: Response) {
+            Log.e(mTAG, "onResponse : "+response.body.toString())
+            //val jsonStr = ReceiveTransform.addToJsonArrayStr(response.body!!.string())
+            val res = ReceiveTransform.restoreXmlToJson(response.body!!.string())
+            Log.e(mTAG, "res = $res")
+            //val res = ReceiveTransform.restoreToJsonStr(response.body()!!.string())
+            //1.get response ,2 error or right , 3 update ui ,4. restore acState 5. update fragment detail
+            runOnUiThread {
+                try {
+                    if (!checkServerErrorString(res)) {
+                        //==== receive single record start ====
+                        val rjShipmentSignatureConfirm: RJShipmentSignatureConfirm = Gson().fromJson(
+                            res,
+                            RJShipmentSignatureConfirm::class.java
+                        ) as RJShipmentSignatureConfirm
+
+                        if (rjShipmentSignatureConfirm.result == "0") {
+                            val successIntent = Intent()
+                            if (signState == SignState.GUARD_UPLOADED) {
+                                successIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_SUCCESS
+                            } else if (signState == SignState.DRIVER_CONFIRM) {
+                                successIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_SUCCESS
+                            }
+
+                            successIntent.putExtra("SEND_ORDER", currentShipmentNo)
+                            mContext!!.sendBroadcast(successIntent)
+                        } else {
+                            val failedIntent = Intent()
+                            if (signState == SignState.GUARD_UPLOADED) {
+                                failedIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_FAILED
+                            } else if (signState == SignState.DRIVER_CONFIRM) {
+                                failedIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_FAILED
+                            }
+                            mContext!!.sendBroadcast(failedIntent)
+
+                            toast(rjShipmentSignatureConfirm.result2)
+                        }
+                    } else {//checkServerErrorString = true
+                        toast(getString(R.string.toast_server_error))
+                    }
+
+
+                } catch (e: Exception) {
+                    Log.e(mTAG, "ex = $e")
+                    //system error
+                    //toast(getString(R.string.toast_server_error))
+                    //val failIntent = Intent()
+                    //failIntent.action = Constants.ACTION.ACTION_SERVER_ERROR
+                    //sendBroadcast(failIntent)
+                }
             }
 
 
@@ -1716,8 +2311,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val btnConfirm = promptView.findViewById<Button>(R.id.btnDialogConfirm)
 
         textViewMsg.text = getString(R.string.version_string, BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
-        var msg = "1. 新增每隔1分鐘自動同步"
-        msg += "2. 新增出貨檢查功能\n"
+        var msg = "1. 新增每隔1分鐘自動同步\n"
+        msg += "2. 新增出貨檢查功能"
         //msg += "3. 新增\"設定\"讓使用者決定手動或自動確認"
         textViewFixMsg.text = msg
 

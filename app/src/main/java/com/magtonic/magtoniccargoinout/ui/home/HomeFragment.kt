@@ -349,6 +349,12 @@ class HomeFragment : Fragment() {
 
 
 
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_CONNECTION_NO_ROUTE_TO_HOST, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_CONNECTION_NO_ROUTE_TO_HOST")
+
+                        progressBar!!.visibility = View.GONE
+
+
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_SERVER_ERROR, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_SERVER_ERROR")
 
@@ -358,10 +364,10 @@ class HomeFragment : Fragment() {
 
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_GUEST_SCAN_BARCODE, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_GUEST_SCAN_BARCODE")
-
+                        val barcodeByScan = intent.getStringExtra("BARCODE_BY_SCAN")
                         poBarcode = intent.getStringExtra("BARCODE") as String
                         poLine = intent.getStringExtra("LINE") as String
-                        barcodeInput!!.setText(poBarcode)
+                        barcodeInput!!.setText(barcodeByScan)
 
                         //removeTimer()
                         //stopTimer()
@@ -503,12 +509,13 @@ class HomeFragment : Fragment() {
                         progressBar!!.visibility = View.GONE
 
                         //startTimer()
-                    } /*else if (intent.action!!.equals(Constants.ACTION.ACTION_GUEST_STOP_TIMER, ignoreCase = true)) {
-                        Log.d(mTAG, "ACTION_GUEST_STOP_TIMER")
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_RECEIPT_UNKNOWN_BARCODE_LENGTH, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_RECEIPT_UNKNOWN_BARCODE_LENGTH")
 
-                        removeTimer()
-                        stopTimer()
-                    }*/
+                        progressBar!!.visibility = View.GONE
+
+                        toast("barcode長度未定義")
+                    }
 
                 }
             }
@@ -528,7 +535,7 @@ class HomeFragment : Fragment() {
             filter.addAction(Constants.ACTION.ACTION_GUEST_SHOW_LEAVE_ACTION)
             filter.addAction(Constants.ACTION.ACTION_RECEIPT_FRAGMENT_REFRESH)
             filter.addAction(Constants.ACTION.ACTION_RECEIPT_NO_NOT_EXIST)
-            //filter.addAction(Constants.ACTION.ACTION_GUEST_STOP_TIMER)
+            filter.addAction(Constants.ACTION.ACTION_RECEIPT_UNKNOWN_BARCODE_LENGTH)
 
             //filter.addAction(Constants.ACTION.ACTION_RECEIPT_ALREADY_UPLOADED_SEND_TO_FRAGMENT)
             guestContext?.registerReceiver(mReceiver, filter)

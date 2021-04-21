@@ -1,65 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content" android:orientation="horizontal" android:layout_width="fill_parent">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_width="fill_parent">
 
-    <ImageView
-        android:id="@+id/success_or_fail_icon"
-        android:layout_width="48dp"
+    <TextView android:text="header"
+        android:id="@+id/historyHeader"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/cross_red"/>
+        android:textStyle="bold"
+        android:textColor="@color/md_black_1000"
+        android:textSize="@dimen/text_size_30"
+        android:gravity="center"
+        android:paddingLeft="10dp"
+        android:layout_weight="3">
+    </TextView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_weight="1">
 
-        <TextView android:text="header"
-            android:id="@+id/historyHeader"
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/success_or_fail_icon"
+            android:layout_width="48dp"
             android:layout_height="match_parent"
-            android:textStyle="bold"
-            android:textColor="@color/md_black_1000"
-            android:textSize="@dimen/text_size_30"
-            android:gravity="center"
-            android:paddingLeft="10dp"
-            android:layout_weight="3">
-        </TextView>
+            android:src="@drawable/cross_red"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_weight="1">
 
 
 
-            <TextView android:text="content"
-                android:id="@+id/historyContent"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="@dimen/text_size_25"
-                android:textColor="@color/md_black_1000"
-                android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:layout_weight="1">
-            </TextView>
 
-            <TextView
-                android:id="@+id/historyTime"
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:textColor="@color/md_black_1000"
-                android:textSize="@dimen/text_size_30"
-                android:text="10:00"
-                android:layout_gravity="end"
-                android:gravity="center"
-                />
+
+
+                <TextView android:text="content"
+                    android:id="@+id/historyContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:textSize="@dimen/text_size_25"
+                    android:textColor="@color/md_black_1000"
+                    android:gravity="center_vertical"
+                    android:layout_weight="1">
+                </TextView>
+
+                <TextView
+                    android:id="@+id/historyTime"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:textColor="@color/md_black_1000"
+                    android:textSize="@dimen/text_size_30"
+                    android:text="10:00"
+                    android:layout_gravity="end"
+                    android:gravity="center"
+                    />
+            </LinearLayout>
+
+
+
         </LinearLayout>
-
-
-
     </LinearLayout>
+
+
 
 
 

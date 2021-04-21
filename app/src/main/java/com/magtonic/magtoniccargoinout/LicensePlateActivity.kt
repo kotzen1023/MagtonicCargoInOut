@@ -20,9 +20,9 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.ml.vision.FirebaseVision
-import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import com.google.firebase.ml.vision.text.FirebaseVisionText
+//import com.google.firebase.ml.vision.FirebaseVision
+//import com.google.firebase.ml.vision.common.FirebaseVisionImage
+//import com.google.firebase.ml.vision.text.FirebaseVisionText
 import com.magtonic.magtoniccargoinout.ui.data.Constants
 import java.io.File
 
@@ -297,7 +297,7 @@ class LicensePlateActivity : AppCompatActivity() {
             textViewLicensePlate.text = ""
 
             val bitmap = (imageViewLicensePlate.drawable as BitmapDrawable).bitmap
-            val image = FirebaseVisionImage.fromBitmap(bitmap)
+            /*val image = FirebaseVisionImage.fromBitmap(bitmap)
             val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
 
             detector.processImage(image)
@@ -309,6 +309,7 @@ class LicensePlateActivity : AppCompatActivity() {
 
                     textViewLicensePlate.text = getString(R.string.recognize_failed)
                 }
+            */
 
         } else if (requestCode == imageCaptureCode && resultCode == Activity.RESULT_OK) {
             imageViewLicensePlate.setImageURI(imageUri)
@@ -317,7 +318,7 @@ class LicensePlateActivity : AppCompatActivity() {
                 textViewLicensePlate.text = ""
 
                 val bitmap = (imageViewLicensePlate.drawable as BitmapDrawable).bitmap
-                val image = FirebaseVisionImage.fromBitmap(bitmap)
+                /*val image = FirebaseVisionImage.fromBitmap(bitmap)
                 val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
 
                 detector.processImage(image)
@@ -329,13 +330,14 @@ class LicensePlateActivity : AppCompatActivity() {
 
                         textViewLicensePlate.text = getString(R.string.recognize_failed)
                     }
+                */
             } else {
                 Log.e(mTAG,"Select an Image First")
             }
         }
     }
 
-    private fun processResultText(resultText: FirebaseVisionText) {
+    /*private fun processResultText(resultText: FirebaseVisionText) {
         if (resultText.textBlocks.size == 0) {
             textViewLicensePlate.text = getString(R.string.detect_no_text_found)
             return
@@ -367,7 +369,7 @@ class LicensePlateActivity : AppCompatActivity() {
 
 
         }
-    }
+    }*/
 
 
 

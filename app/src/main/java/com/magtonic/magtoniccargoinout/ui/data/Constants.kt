@@ -1,11 +1,33 @@
 package com.magtonic.magtoniccargoinout.ui.data
 
 class Constants {
+
+    class WebServiceIpAddress {
+        companion object {
+            const val BASE_IP : String = "http://192.1.1.50/asmx/webservice.asmx/"
+            const val IEP_IP : String = "http://192.1.1.121/webs.asmx/"
+        }
+    }
+
+    class FtpInfo {
+        companion object {
+            const val IP_ADDRESS : String = "192.1.1.121"
+            const val PORT : Int = 21
+            //const val OUTSOURCED_USER : String = "iepftp"
+            //const val OUTSOURCED_PASSWORD : String = "T69924056Ftp"
+            //const val RETURN_OF_GOODS_USER : String = "rvupftp"
+            //const val RETURN_OF_GOODS_PASSWORD : String = "T69924056Ftp"
+            const val SHIPMENT_USER : String = "ogapftp"
+            const val SHIPMENT_PASSWORD : String = "T69924056Ftp"
+        }
+    }
+
     class ACTION {
         companion object {
             
             const val ACTION_HIDE_KEYBOARD : String = "com.magtonic.MagtonicCargoInOut.HideKeyboardAction"
             const val ACTION_CONNECTION_TIMEOUT : String = "com.magtonic.MagtonicCargoInOut.ConnectionTimeOut"
+            const val ACTION_CONNECTION_NO_ROUTE_TO_HOST : String = "com.magtonic.MagtonicCargoInOut.ConnectionNoRouteToHost"
             const val ACTION_SERVER_ERROR : String = "com.magtonic.MagtonicCargoInOut.ServerError"
             
             const val ACTION_NETWORK_FAILED : String = "com.magtonic.MagtonicCargoInOut.ActionNetworkFailed"
@@ -20,6 +42,7 @@ class Constants {
 
             const val ACTION_RECEIPT_NO_NOT_EXIST : String = "com.magtonic.MagtonicCargoInOut.ReceiptNoNotExist"
             const val ACTION_RECEIPT_SCAN_BARCODE : String = "com.magtonic.MagtonicCargoInOut.ReceiptScanBarcode"
+            const val ACTION_RECEIPT_UNKNOWN_BARCODE_LENGTH: String = "com.magtonic.MagtonicCargoInOut.ReceiptUnknownBarcodeLength"
 
             const val ACTION_LICENSE_PLATE_HIDE_KEYBOARD : String = "com.magtonic.MagtonicCargoInOut.LicensePlateHideKeyboardAction"
             //guest
@@ -49,6 +72,49 @@ class Constants {
             const val ACTION_SHIPMENT_CHECK_RETURN_EMPTY : String ="com.magtonic.MagtonicCargoInOut.ShipmentCheckReturnEmpty"
             const val ACTION_SHIPMENT_SEARCH_HISTORY_BY_DATE_ACTION : String ="com.magtonic.MagtonicCargoInOut.ShipmentSearchHistoryByDateAction"
             const val ACTION_SHIPMENT_SEARCH_HISTORY_BY_DATE_FINISH : String ="com.magtonic.MagtonicCargoInOut.ShipmentSearchHistoryByDateFinish"
+            const val ACTION_SHIPMENT_FRAGMENT_NOT_COMPLETE_BIKE : String ="com.magtonic.MagtonicCargoInOut.ShipmentFragmentNotCompleteBike"
+
+            //signature
+            const val ACTION_SHIPMENT_SIGNATURE_LIST_CLEAR : String = "com.magtonic.MagtonicCargoInOut.ShipmentSignatureListClear"
+            const val ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_ACTION : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureSearchNoAction"
+            const val ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureSearchNoFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_EMPTY : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureSearchNoEmpty"
+            const val ACTION_SHIPMENT_SIGNATURE_FRAGMENT_REFRESH : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureFragmentRefresh"
+            const val ACTION_SHIPMENT_SIGNATURE_RETURN_EMPTY : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureReturnEmpty"
+
+            //signature detail
+            const val ACTION_SHIPMENT_SIGNATURE_SEARCH_DETAIL_ACTION : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureSearchDetailAction"
+            const val ACTION_SHIPMENT_SIGNATURE_SEARCH_DETAIL_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureSearchDetailFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_DETAIL_FRAGMENT_REFRESH : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureDetailFragmentRefresh"
+            const val ACTION_SHIPMENT_SIGNATURE_DETAIL_RETURN_EMPTY : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureDetailReturnEmpty"
+            const val ACTION_SHIPMENT_SIGNATURE_BACK_TO_SHIPMENT_NO_LIST : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureBackToShipmentNoList"
+            const val ACTION_SHIPMENT_SIGNATURE_SHOW_SIGN_DIALOG_ACTION : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureShowSignDialogAction"
+            const val ACTION_SHIPMENT_SIGNATURE_HIDE_FAB_BACK : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureHideFabBack"
+
+
+            const val ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_CONNECT_TIMEOUT : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureDriverFtpConnectTimeout"
+            const val ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_CONNECT_UNKNOWN_HOST : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureDriverFTPConnectUnknownHost"
+            const val ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_CONNECT_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureDriverFtpConnectFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_CONNECT_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureDriverFTPConnectSuccess"
+            const val ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_UPLOAD_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureDriverFtpUploadFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_UPLOAD_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureDriverFtpUploadSuccess"
+            const val ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_UPLOAD_COMPLETE : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureDriverFTPUploadComplete"
+
+            const val ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_ACTION : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureDriverSignConfirmAction"
+            const val ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureDriverSignConfirmFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureDriverSignConfirmSuccess"
+
+            const val ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_CONNECT_TIMEOUT : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardFtpConnectTimeout"
+            const val ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_CONNECT_UNKNOWN_HOST : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardFTPConnectUnknownHost"
+            const val ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_CONNECT_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardFtpConnectFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_CONNECT_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardFTPConnectSuccess"
+            const val ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_UPLOAD_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardFtpUploadFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_UPLOAD_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardFtpUploadSuccess"
+            const val ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_UPLOAD_COMPLETE : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardFTPUploadComplete"
+
+            const val ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_ACTION : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardSignConfirmAction"
+            const val ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardSignConfirmFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardSignConfirmSuccess"
         }
 
     }

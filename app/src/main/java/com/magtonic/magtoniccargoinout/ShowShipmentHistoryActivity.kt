@@ -52,6 +52,17 @@ class ShowShipmentHistoryActivity : AppCompatActivity() {
             val year = c.get(Calendar.YEAR)
             val month = c.get(Calendar.MONTH)
             val day = c.get(Calendar.DAY_OF_MONTH)
+
+            if (dateSelectHistoryList != null) {
+                dateSelectHistoryList!!.clear()
+                dateSelectHistoryList = null
+            }
+
+            if (historyAdapter != null) {
+                historyAdapter?.notifyDataSetChanged()
+                historyAdapter = null
+            }
+
             DatePickerDialog(this, { _, year, month, day ->
                 run {
                     //val format = "你設定的日期為:${setDateFormat(year, month, day)}"
@@ -62,16 +73,7 @@ class ShowShipmentHistoryActivity : AppCompatActivity() {
                     Log.e(mTAG, "date  = $date")
                     textViewDate!!.text = date
 
-                    if (dateSelectHistoryList != null) {
-                        dateSelectHistoryList!!.clear()
-                    } else {
-                        dateSelectHistoryList = ArrayList()
-                    }
 
-                    if (historyAdapter != null) {
-                        historyAdapter?.notifyDataSetChanged()
-
-                    }
 
                     if (MainActivity.db != null) {
 
@@ -82,17 +84,19 @@ class ShowShipmentHistoryActivity : AppCompatActivity() {
 
                         if (dateSelectHistoryList!!.size > 0) {
 
-                            dateSelectHistoryList = dateSelectHistoryList!!.sortedBy { it.getId() }.reversed() as ArrayList<History>
-
+                            dateSelectHistoryList = dateSelectHistoryList!!.sortedBy { it.getTimeStamp() }.reversed() as ArrayList<History>
+                            //historyAdapter?.notifyDataSetChanged()
+                            //listView!!.invalidateViews()
                         }
 
 
 
-                        historyAdapter = dateSelectHistoryList?.let {
+                        /*historyAdapter = dateSelectHistoryList?.let {
                             HistoryAdapter(mContext, R.layout.shipmentcheck_list_item,
                                 it
                             )
-                        }
+                        }*/
+                        historyAdapter =  HistoryAdapter(mContext, R.layout.shipmentcheck_list_item, dateSelectHistoryList as ArrayList<History>)
                         listView!!.adapter = historyAdapter
                     }
 
@@ -124,26 +128,30 @@ class ShowShipmentHistoryActivity : AppCompatActivity() {
                 } else {
                     dateSelectHistoryList = ArrayList()
                 }
+
+                dateSelectHistoryList = MainActivity.db!!.historyDao().getHistoryByDate(currentDate) as ArrayList<History>
+
+                if (dateSelectHistoryList != null && dateSelectHistoryList!!.size > 1) {
+                    //dateSelectHistoryList = dateSelectHistoryList!!.sortedBy { it.getTimeStamp() }.reversed() as ArrayList<History>
+                    dateSelectHistoryList = dateSelectHistoryList!!.sortedBy { it.getTimeStamp() }.reversed() as ArrayList<History>
+                }
+                //Collections.reverse(dateSelectHistoryList)
+
+                for (i in 0 until dateSelectHistoryList!!.size) {
+                    Log.e(mTAG, "dateSelectHistoryList[$i] = ${dateSelectHistoryList!![i].getBarcode()} timestamp = ${dateSelectHistoryList!![i].getTimeStamp()} ")
+                }
+
+
+                /*historyAdapter = dateSelectHistoryList?.let {
+                    HistoryAdapter(mContext, R.layout.shipmentcheck_list_item,
+                        it
+                    )
+                }*/
+                historyAdapter =  HistoryAdapter(mContext, R.layout.shipmentcheck_list_item, dateSelectHistoryList as ArrayList<History>)
+                listView!!.adapter = historyAdapter
             }
 
-            dateSelectHistoryList = MainActivity.db!!.historyDao().getHistoryByDate(currentDate) as ArrayList<History>
 
-            if (dateSelectHistoryList != null && dateSelectHistoryList!!.size > 0) {
-                dateSelectHistoryList = dateSelectHistoryList!!.sortedBy { it.getTimeStamp() }.reversed() as ArrayList<History>
-            }
-            //Collections.reverse(dateSelectHistoryList)
-
-            for (i in 0 until dateSelectHistoryList!!.size) {
-                Log.e(mTAG, "dateSelectHistoryList[$i] = ${dateSelectHistoryList!![i].getBarcode()} timestamp = ${dateSelectHistoryList!![i].getTimeStamp()} ")
-            }
-
-
-            historyAdapter = dateSelectHistoryList?.let {
-                HistoryAdapter(mContext, R.layout.shipmentcheck_list_item,
-                    it
-                )
-            }
-            listView!!.adapter = historyAdapter
 
 
         }

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
 
-apply plugin: 'kotlin-android-extensions'
+//apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'com.google.gms.google-services'
 
@@ -32,6 +32,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
@@ -46,19 +49,24 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.squareup.okio:okio:$okio_version"
 
+    implementation "org.apache.commons:commons-lang3:$commons_lang3_version"
+    //implementation "org.apache.directory.studio:org.apache.commons.io:$apache_common_io"
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    implementation 'commons-net:commons-net:3.6'
     api "com.google.code.gson:gson:$gson_version"
 
     //lifecycle test
     implementation "androidx.lifecycle:lifecycle-extensions:$arch_lifecycle_version"
     implementation files('libs/java-json.jar')
 
-    implementation "com.google.firebase:firebase-ml-vision:$firebase_ml_vision"
-    implementation "com.google.android.gms:play-services-vision:$play_services_vision"
-    implementation "com.google.android.gms:play-services-vision-common:$play_services_vision_common"
-    implementation "com.google.android.gms:play-services-vision-face-contour-internal:$play_services_vision_face_contour_internal"
-    implementation "com.google.android.gms:play-services-vision-image-label:$play_services_vision_image_label"
-    implementation "com.google.firebase:firebase-ml-vision-face-model:$firebase_ml_vision_face_model"
-    implementation "com.google.firebase:firebase-ml-model-interpreter:$firebase_ml_model_interpreter"
+    //implementation "com.google.firebase:firebase-ml-vision:$firebase_ml_vision"
+    implementation 'com.google.firebase:firebase-functions:19.2.0'
+    //implementation "com.google.android.gms:play-services-vision:$play_services_vision"
+    //implementation "com.google.android.gms:play-services-vision-common:$play_services_vision_common"
+    //implementation "com.google.android.gms:play-services-vision-face-contour-internal:$play_services_vision_face_contour_internal"
+    //implementation "com.google.android.gms:play-services-vision-image-label:$play_services_vision_image_label"
+    //implementation "com.google.firebase:firebase-ml-vision-face-model:$firebase_ml_vision_face_model"
+    //implementation "com.google.firebase:firebase-ml-model-interpreter:$firebase_ml_model_interpreter"
     implementation "org.tensorflow:tensorflow-lite:$tensorflow_lite"
 
     implementation "androidx.room:room-runtime:$room_version"

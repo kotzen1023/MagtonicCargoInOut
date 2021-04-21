@@ -83,14 +83,14 @@ class GuestDetailItemAdapter(context: Context?, resource: Int, objects: ArrayLis
             mContext!!.sendBroadcast(guestInIntent)
         }
 
-        holder.itemImageLiencePlate.setOnClickListener {
+        /*holder.itemImageLiencePlate.setOnClickListener {
             Log.e(mTAG, "camera click $position")
 
             val guestInIntent = Intent(mContext, LicensePlateActivity::class.java)
             guestInIntent.putExtra("GUEST_INDEX", position)
             mContext!!.startActivity(guestInIntent)
 
-        }
+        }*/
 
 
         return view
@@ -100,7 +100,7 @@ class GuestDetailItemAdapter(context: Context?, resource: Int, objects: ArrayLis
         var itemData2: TextView = view.findViewById(R.id.guestItemDetailData2)
         var itemData34: TextView = view.findViewById(R.id.guestItemDetailData34)
         var itemBtnLeave: Button = view.findViewById(R.id.receiptItemDetailBtnLeave)
-        var itemImageLiencePlate: ImageView = view.findViewById(R.id.imageViewCamera)
+        //var itemImageLiencePlate: ImageView = view.findViewById(R.id.imageViewCamera)
 
 
 

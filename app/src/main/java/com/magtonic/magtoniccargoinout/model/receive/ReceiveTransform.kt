@@ -16,6 +16,16 @@ class ReceiveTransform {
 
     }
 
+    inner class RJSignatureList {
+        var dataList = ArrayList<RJSignature>()
+
+    }
+
+    inner class RJSignatureDetailList {
+        var dataList = ArrayList<RJSignatureDetail>()
+
+    }
+
     companion object {
         private val mTAG = ReceiveTransform::class.java.name
         //const val arrField : String = "dataList"
