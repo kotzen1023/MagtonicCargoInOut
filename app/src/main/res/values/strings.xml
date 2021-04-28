@@ -51,7 +51,7 @@
     <string name="nav_shipment_check">Shipment Check</string>
     <string name="shipment_history">history</string>
     <string name="nav_signature">Shipment Signing</string>
-    <string name="input_shipment_no">input shipment no</string>
+    <string name="input_shipment_no">scan or input shipment no</string>
     <string name="shipment_input_no_empty">Shipment No Empty</string>
     <string name="shipment_no_and_order_no">S.P No./Order No.</string>
     <string name="customer_no">Customer</string>
@@ -72,4 +72,18 @@
     <string name="shipment_signature_guard">Guard</string>
     <string name="shipment_signature_let_driver_sign">Driver Sign</string>
     <string name="shipment_signature_let_guard_sign">Guard Sign</string>
+    <string name="shipment_no_multi_sign_add">Add to sign list</string>
+    <string name="shipment_no_multi_sign_exist">Shipment No exist.</string>
+    <string name="shipment_signature_multi_list">Sign multi list</string>
+    <string name="shipment_signature_multi_list_empty">Sign multi list empty</string>
+    <string name="shipment_signature_multi_total">Total %d Shipment orders</string>
+    <string name="shipment_signature_multi_prev">Prev</string>
+    <string name="shipment_signature_multi_sign">Sign</string>
+    <string name="shipment_signature_multi_sign_tile">Sign for %d shipment orders?</string>
+    <string name="shipment_signature_multi_list_empty_prev">list is empty. Press "prev", then add or re-scan barcode.</string>
+    <string name="shipment_signature_multi_driver_upload_list_empty">Driver upload list empty.</string>
+    <string name="shipment_signature_multi_guard_upload_list_empty">Guard upload list empty.</string>
+    <string name="enter_password">Please enter password</string>
+    <string name="password_mismatch">password_mismatch</string>
+    <string name="nav_setting">Setting</string>
 </resources>

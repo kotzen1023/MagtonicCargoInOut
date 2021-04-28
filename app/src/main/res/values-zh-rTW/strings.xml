@@ -50,7 +50,7 @@
     <string name="nav_shipment_check">出貨檢查</string>
     <string name="shipment_history">出貨檢查紀錄</string>
     <string name="nav_signature">出貨簽名</string>
-    <string name="input_shipment_no">或輸入出貨單號</string>
+    <string name="input_shipment_no">掃描或輸入出貨單號</string>
     <string name="shipment_input_no_empty">出貨單號為空，請輸入出貨單號。</string>
     <string name="shipment_no_and_order_no">出貨單/訂單</string>
     <string name="customer_no">客戶編號</string>
@@ -69,6 +69,20 @@
     <string name="shipment_no">出貨單號</string>
     <string name="shipment_signature_driver">司機</string>
     <string name="shipment_signature_guard">守衛</string>
-    <string name="shipment_signature_let_driver_sign">請司機簽名</string>
-    <string name="shipment_signature_let_guard_sign">請守衛簽名</string>
+    <string name="shipment_signature_let_driver_sign">請司機簽名後按"上傳"</string>
+    <string name="shipment_signature_let_guard_sign">請守衛簽名後按"上傳"</string>
+    <string name="shipment_no_multi_sign_add">已加入到簽名清單</string>
+    <string name="shipment_no_multi_sign_exist">此出貨單已在簽名清單</string>
+    <string name="shipment_signature_multi_list">簽名清單</string>
+    <string name="shipment_signature_multi_list_empty">簽名清單為空。請掃描後按 \" + \"加入簽名清單後簽名。</string>
+    <string name="shipment_signature_multi_total">共 %d 筆出貨單單號</string>
+    <string name="shipment_signature_multi_prev">上一頁</string>
+    <string name="shipment_signature_multi_sign">簽名</string>
+    <string name="shipment_signature_multi_sign_tile">共 %d 筆出貨單簽名？</string>
+    <string name="shipment_signature_multi_list_empty_prev">簽名清單為空。請按\"上一頁\"後，重新加入或重新掃描出貨單條碼。</string>
+    <string name="shipment_signature_multi_driver_upload_list_empty">司機上傳簽名清單為空</string>
+    <string name="shipment_signature_multi_guard_upload_list_empty">守衛上傳簽名清單為空</string>
+    <string name="enter_password">請輸入密碼</string>
+    <string name="password_mismatch">密碼錯誤</string>
+    <string name="nav_setting">設定</string>
 </resources>

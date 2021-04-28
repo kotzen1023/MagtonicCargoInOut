@@ -2,6 +2,8 @@ package com.magtonic.magtoniccargoinout.api
 
 import android.util.Log
 import com.google.gson.Gson
+import com.magtonic.magtoniccargoinout.MainActivity.Companion.base_ip_address_webservice
+import com.magtonic.magtoniccargoinout.MainActivity.Companion.iep_ip_address_webservice
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.timeOutSeconds
 import com.magtonic.magtoniccargoinout.model.send.*
 import com.magtonic.magtoniccargoinout.ui.data.Constants
@@ -15,11 +17,11 @@ class ApiFunc {
     private val mTAG = ApiFunc::class.java.name
     //val baseIP = "http://192.1.1.42:81/asmx/WebService.asmx/"
     //private val baseIP = "http://192.1.1.50/asmx/webservice.asmx/"
-    private val baseIP = Constants.WebServiceIpAddress.BASE_IP
+    private val baseIP = base_ip_address_webservice
     //private val testIP = "http://192.1.1.38/web/ws/r/aws_ttsrv2_toptest"
     //private val realIP = "http://192.1.1.38/web/ws/r/aws_ttsrv2"
     //private val iepIP = "http://192.1.1.121/webs.asmx/"
-    private val iepIP = Constants.WebServiceIpAddress.IEP_IP
+    private val iepIP = iep_ip_address_webservice
 
     //api http address string define
 

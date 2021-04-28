@@ -3,6 +3,7 @@ package com.magtonic.magtoniccargoinout.ui.data
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.magtonic.magtoniccargoinout.MainActivity.Companion.isSignMulti
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.signState
 import com.magtonic.magtoniccargoinout.SignActivity
 
@@ -88,10 +89,23 @@ class FTPUtils(context: Context, ftpUrl: String, ftpPort: Int, userName: String,
                 Log.d(mTAG, "ftp disconnect")
 
                 val successIntent = Intent()
-                if (signState == SignState.INITIAL) {
-                    successIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_UPLOAD_SUCCESS
+
+                if (!isSignMulti) {
+                    if (signState == SignState.INITIAL) {
+                        successIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_UPLOAD_SUCCESS
+                    } else {
+                        successIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_UPLOAD_SUCCESS
+                    }
                 } else {
-                    successIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_UPLOAD_SUCCESS
+                    if (signState == SignState.INITIAL) {
+                        successIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_SUCCESS
+                    } else {
+                        successIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_SUCCESS
+                    }
                 }
 
                 mContext!!.sendBroadcast(successIntent)
@@ -100,45 +114,106 @@ class FTPUtils(context: Context, ftpUrl: String, ftpPort: Int, userName: String,
             } catch (ex1: SocketException) {
                 ex1.printStackTrace()
                 val timeoutIntent = Intent()
-                if (signState == SignState.INITIAL) {
-                    timeoutIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_CONNECT_TIMEOUT
+                if (!isSignMulti) {
+                    if (signState == SignState.INITIAL) {
+                        timeoutIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_CONNECT_TIMEOUT
+                    } else {
+                        timeoutIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_CONNECT_TIMEOUT
+                    }
                 } else {
-                    timeoutIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_CONNECT_TIMEOUT
+                    if (signState == SignState.INITIAL) {
+                        timeoutIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_TIMEOUT
+                    } else {
+                        timeoutIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_TIMEOUT
+                    }
                 }
                 mContext!!.sendBroadcast(timeoutIntent)
             } catch (ex2: UnknownHostException) {
                 ex2.printStackTrace()
                 val unknownHostIntent = Intent()
-                if (signState == SignState.INITIAL) {
-                    unknownHostIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_CONNECT_UNKNOWN_HOST
+                if (!isSignMulti) {
+                    if (signState == SignState.INITIAL) {
+                        unknownHostIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_CONNECT_UNKNOWN_HOST
+                    } else {
+                        unknownHostIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_CONNECT_UNKNOWN_HOST
+                    }
                 } else {
-                    unknownHostIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_CONNECT_UNKNOWN_HOST
+                    if (signState == SignState.INITIAL) {
+                        unknownHostIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_UNKNOWN_HOST
+                    } else {
+                        unknownHostIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_UNKNOWN_HOST
+                    }
                 }
                 mContext!!.sendBroadcast(unknownHostIntent)
             } catch (ex3: FTPConnectionClosedException) {
                 val closeIntent = Intent()
-                if (signState == SignState.INITIAL) {
-                    closeIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_UPLOAD_FAILED
+                if (!isSignMulti) {
+                    if (signState == SignState.INITIAL) {
+                        closeIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_UPLOAD_FAILED
+                    } else {
+                        closeIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_UPLOAD_FAILED
+                    }
                 } else {
-                    closeIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_UPLOAD_FAILED
+                    if (signState == SignState.INITIAL) {
+                        closeIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_FAILED
+                    } else {
+                        closeIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_FAILED
+                    }
                 }
                 mContext!!.sendBroadcast(closeIntent)
             } catch (ex4: CopyStreamException) {
                 val copyIntent = Intent()
-                if (signState == SignState.INITIAL) {
-                    copyIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_UPLOAD_FAILED
+                if (!isSignMulti) {
+                    if (signState == SignState.INITIAL) {
+                        copyIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_UPLOAD_FAILED
+                    } else {
+                        copyIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_UPLOAD_FAILED
+                    }
                 } else {
-                    copyIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_UPLOAD_FAILED
+                    if (signState == SignState.INITIAL) {
+                        copyIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_FAILED
+                    } else {
+                        copyIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_FAILED
+                    }
                 }
                 mContext!!.sendBroadcast(copyIntent)
             } catch (ex: Exception) {
                 val failedIntent = Intent()
-                if (signState == SignState.INITIAL) {
-                    failedIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_CONNECT_FAILED
+                if (!isSignMulti) {
+                    if (signState == SignState.INITIAL) {
+                        failedIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_CONNECT_FAILED
+                    } else {
+                        failedIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_CONNECT_FAILED
+                    }
                 } else {
-                    failedIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_CONNECT_FAILED
+                    if (signState == SignState.INITIAL) {
+                        failedIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_FAILED
+                    } else {
+                        failedIntent.action =
+                            Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_FAILED
+                    }
                 }
                 mContext!!.sendBroadcast(failedIntent)
+
                 ex.printStackTrace()
             }
 

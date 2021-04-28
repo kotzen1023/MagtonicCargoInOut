@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -45,6 +46,7 @@ import com.magtonic.magtoniccargoinout.model.send.*
 import com.magtonic.magtoniccargoinout.model.sys.ScanBarcode
 import com.magtonic.magtoniccargoinout.persistence.HistoryDataBase
 import com.magtonic.magtoniccargoinout.ui.data.Constants
+import com.magtonic.magtoniccargoinout.ui.data.ShipmentSignatureMultiItem
 import com.magtonic.magtoniccargoinout.ui.home.HomeFragment
 
 import com.magtonic.magtoniccargoinout.ui.shipment.ShipmentCheckFragment
@@ -112,8 +114,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         @JvmStatic var shipmentList: ArrayList<RJShipment> = ArrayList()
         @JvmStatic var signatureList: ArrayList<RJSignature> = ArrayList()
         @JvmStatic var signatureDetailList: ArrayList<RJSignatureDetail> = ArrayList()
+        @JvmStatic var signatureMultiSignList: ArrayList<ShipmentSignatureMultiItem> = ArrayList()
         @JvmStatic var currentShipmentNo: String = ""
         @JvmStatic var isShipmentSignatureInDetail: Int = 0
+        @JvmStatic var isSignMulti: Boolean = false
 
         @JvmStatic var isEraser: Boolean = false
         @JvmStatic var penColor: Int = Color.BLACK
@@ -122,6 +126,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         @JvmStatic var base64: String = ""
 
         @JvmStatic var signState: SignState = SignState.INITIAL
+        @JvmStatic var currentDate: String = ""
+        //for change ip
+        @JvmStatic var base_ip_address: String = ""
+        @JvmStatic var iep_ip_address: String = ""
+        @JvmStatic var ftp_ip_address: String = ""
+        @JvmStatic var base_ip_address_webservice: String = "http://$base_ip_address/asmx/webservice.asmx/"
+        @JvmStatic var iep_ip_address_webservice: String = "http://$iep_ip_address/webs.asmx/"
 
         var db: HistoryDataBase? = null
         //@JvmStatic var historyList: ArrayList<History>? = null
@@ -205,6 +216,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var fabBack: FloatingActionButton? = null
     var fabSign: FloatingActionButton? = null
 
+    var fabAddToMultiSign: FloatingActionButton? = null
+    var fabMultiSignList: FloatingActionButton? = null
+
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -228,7 +242,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             windowManager.defaultDisplay.getMetrics(displayMetrics)
         } else {
             //mContext!!.display!!.getMetrics(displayMetrics)
-            mContext!!.display!!.getRealMetrics(displayMetrics)
+            this@MainActivity.display!!.getRealMetrics(displayMetrics)
         }
         screenHeight = displayMetrics.heightPixels
         screenWidth = displayMetrics.widthPixels
@@ -239,6 +253,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // guest read current plant
         currentPlant = pref!!.getString("CURRENT_PLANT", "T") as String
+        base_ip_address = pref!!.getString("BASE_IP_ADDRESS", "192.1.1.50") as String
+        iep_ip_address = pref!!.getString("IEP_IP_ADDRESS", "192.1.1.121") as String
+        ftp_ip_address = pref!!.getString("FTP_IP_ADDRESS", "192.1.1.121") as String
+
+        base_ip_address_webservice = "http://$base_ip_address/asmx/webservice.asmx/"
+        iep_ip_address_webservice = "http://$iep_ip_address/webs.asmx/"
+
 
         val migration12 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
@@ -318,6 +339,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 CurrentFragment.SHIPMENT_SIGNATURE_FRAGMENT -> {
                     if (isShipmentSignatureInDetail == 1) {
+
+                        fabAddToMultiSign!!.visibility = View.VISIBLE
+                        fabMultiSignList!!.visibility = View.VISIBLE
+
                         fabBack!!.visibility = View.GONE
                         fabSign!!.visibility = View.GONE
 
@@ -327,6 +352,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         backIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_BACK_TO_SHIPMENT_NO_LIST
                         sendBroadcast(backIntent)
                     }
+
+
                 }
 
                 else -> {
@@ -351,6 +378,42 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         }
 
+        fabAddToMultiSign = findViewById(R.id.fabAddToMultiSign)
+        fabAddToMultiSign!!.setOnClickListener {
+            val showIntent = Intent()
+            when (currentFrag) {
+                CurrentFragment.SHIPMENT_SIGNATURE_FRAGMENT -> {
+                    showIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_ACTION
+                }
+                else -> {
+                    Log.e(mTAG, "Unknown Fragment")
+                }
+            }
+
+            sendBroadcast(showIntent)
+        }
+
+        fabMultiSignList = findViewById(R.id.fabMultiSignList)
+        fabMultiSignList!!.setOnClickListener {
+
+            if (signatureMultiSignList.size > 0) {
+                val showIntent = Intent()
+                when (currentFrag) {
+                    CurrentFragment.SHIPMENT_SIGNATURE_FRAGMENT -> {
+                        showIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SHOW_SIGN_MULTI_LIST
+                    }
+                    else -> {
+                        Log.e(mTAG, "Unknown Fragment")
+                    }
+                }
+
+                sendBroadcast(showIntent)
+            } else {
+                toastLong(getString(R.string.shipment_signature_multi_list_empty))
+            }
+
+
+        }
         //load from db
         /*if (db != null) {
             if (historyList != null) {
@@ -607,6 +670,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         fabBack!!.visibility = View.GONE
                         fabSign!!.visibility = View.GONE
 
+                        fabAddToMultiSign!!.visibility = View.GONE
+                        fabMultiSignList!!.visibility = View.GONE
+
                         val inputDate = intent.getStringExtra("INPUT_DATE")
                         val inputNo = intent.getStringExtra("INPUT_NO")
 
@@ -628,6 +694,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                         fabSign!!.visibility = View.GONE
                         fabBack!!.visibility = View.GONE
+
+                        if (signatureList.size > 0) {
+                            fabAddToMultiSign!!.visibility = View.VISIBLE
+                            fabMultiSignList!!.visibility = View.VISIBLE
+                        }
+
                         isShipmentSignatureInDetail = 0
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_ACTION, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_UPLOAD_ACTION")
@@ -637,7 +709,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                         currentShipmentNo = sendOrder as String
 
-                        confirmShipmentSignature(sendOrder , uploadSignFileName as  String, "user", "1")
+                        confirmShipmentSignature(sendOrder , uploadSignFileName as  String, "tiptop", "1")
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_ACTION, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_ACTION")
 
@@ -646,7 +718,58 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                         currentShipmentNo = sendOrder as String
 
-                        confirmShipmentSignature(sendOrder , uploadSignFileName as  String, "user", "2")
+                        confirmShipmentSignature(sendOrder , uploadSignFileName as  String, "tiptop", "2")
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_SUCCESS, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_SUCCESS")
+
+                        toast(getString(R.string.shipment_no_multi_sign_add))
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_EXIST, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_EXIST")
+
+                        toast(getString(R.string.shipment_no_multi_sign_exist))
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SHOW_SIGN_MULTI_LIST, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_SHOW_SIGN_MULTI_LIST")
+
+                        val intent = Intent(mContext, SignMultiActivity::class.java)
+                        //intent.putExtra("SEND_ORDER", currentSendOrder)
+                        //intent.putExtra("TITLE", getString(R.string.nav_signature))
+                        //intent.putExtra("SEND_FRAGMENT", "SHIPMENT_SIGNATURE_FRAGMENT")
+                        startActivity(intent)
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_WEBSERVICE_FTP_IP_ADDRESS_UPDATE_ACTION, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_WEBSERVICE_FTP_IP_ADDRESS_UPDATE_ACTION")
+
+                        base_ip_address_webservice = "http://$base_ip_address/asmx/webservice.asmx/"
+                        iep_ip_address_webservice = "http://$iep_ip_address/webs.asmx/"
+
+                        editor = pref!!.edit()
+                        editor!!.putString("BASE_IP_ADDRESS", base_ip_address)
+                        editor!!.putString("IEP_IP_ADDRESS", iep_ip_address)
+                        editor!!.putString("FTP_IP_ADDRESS", ftp_ip_address)
+                        editor!!.apply()
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_WEBSERVICE_FTP_IP_ADDRESS_SHOW_PASSWORD_DIALOG, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_WEBSERVICE_FTP_IP_ADDRESS_SHOW_PASSWORD_DIALOG")
+
+                        showIPSettingPasswordDialog()
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_ACTION, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_ACTION")
+
+                        val shipmentNo = intent.getStringExtra("SHIPMENT_NO")
+                        val uploadSignFileName = intent.getStringExtra("SIGN_FILE_NAME")
+
+                        confirmShipmentSignature(shipmentNo as String , uploadSignFileName as String, "tiptop", "1")
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_ACTION, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_ACTION")
+
+                        val shipmentNo = intent.getStringExtra("SHIPMENT_NO")
+                        val uploadSignFileName = intent.getStringExtra("SIGN_FILE_NAME")
+
+                        confirmShipmentSignature(shipmentNo as String , uploadSignFileName as String, "tiptop", "2")
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_SIGN_CONFIRM_COMPLETE, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_SIGN_CONFIRM_COMPLETE")
+
+                        signatureMultiSignList.clear()
+
+                        toastLong(getString(R.string.shipment_signature_confirm_success))
                     }
                 }
 
@@ -781,6 +904,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                                 currentFrag = CurrentFragment.HOME_FRAGMENT
                                             }
                                         }
+
+                                        CurrentFragment.SHIPMENT_SIGNATURE_FRAGMENT -> {
+
+                                        }
                                     }
                                 }
 
@@ -825,6 +952,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                                 isBarcodeScanning = false
                                             }
 
+
+                                        }
+
+                                        CurrentFragment.SHIPMENT_SIGNATURE_FRAGMENT -> {
+
+                                            Log.e(mTAG, "poBarcodeByScan = ${barcode!!.poBarcodeByScan}")
+
+                                            fabBack!!.visibility = View.GONE
+                                            fabSign!!.visibility = View.GONE
+
+                                            fabAddToMultiSign!!.visibility = View.GONE
+                                            fabMultiSignList!!.visibility = View.GONE
+
+                                            val scanIntent = Intent()
+                                            scanIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SCAN_BARCODE
+                                            scanIntent.putExtra("BARCODE", barcode!!.poBarcodeByScan)
+                                            sendBroadcast(scanIntent)
+
+                                            getShipmentSignatureMulti(currentDate, barcode!!.poBarcodeByScan)
 
                                         }
                                     }
@@ -885,6 +1031,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //sign upload confirm
             filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_ACTION)
             filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_ACTION)
+            //sign multi
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_SUCCESS)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_EXIST)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SHOW_SIGN_MULTI_LIST)
+            //sign multi driver confirm
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_ACTION)
+            //sign multi guard confirm
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_ACTION)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_SIGN_CONFIRM_COMPLETE)
+            //ip setting
+            filter.addAction(Constants.ACTION.ACTION_WEBSERVICE_FTP_IP_ADDRESS_UPDATE_ACTION)
+            filter.addAction(Constants.ACTION.ACTION_WEBSERVICE_FTP_IP_ADDRESS_SHOW_PASSWORD_DIALOG)
 
             filter.addAction("android.net.wifi.STATE_CHANGE")
             filter.addAction("android.net.wifi.WIFI_STATE_CHANGED")
@@ -977,6 +1135,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val intent = Intent(this, ShowShipmentHistoryActivity::class.java)
                 startActivity(intent)
             }
+
+
         }
 
 
@@ -1013,6 +1173,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 menuItemShipmentHistory!!.isVisible = false
                 title = getString(R.string.nav_guest)
+
+                fabBack!!.visibility = View.GONE
+                fabSign!!.visibility = View.GONE
+                fabMultiSignList!!.visibility = View.GONE
+                fabAddToMultiSign!!.visibility = View.GONE
             }
 
             R.id.nav_shipment_check -> {
@@ -1022,6 +1187,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 menuItemShipmentHistory!!.isVisible = true
                 title = getString(R.string.nav_shipment_check)
+
+                fabBack!!.visibility = View.GONE
+                fabSign!!.visibility = View.GONE
+                fabMultiSignList!!.visibility = View.GONE
+                fabAddToMultiSign!!.visibility = View.GONE
             }
             R.id.nav_signature -> {
                 currentFrag = CurrentFragment.SHIPMENT_SIGNATURE_FRAGMENT
@@ -1030,6 +1200,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 menuItemShipmentHistory!!.isVisible = false
                 title = getString(R.string.nav_signature)
+
+                fabBack!!.visibility = View.GONE
+                fabSign!!.visibility = View.GONE
+                fabMultiSignList!!.visibility = View.GONE
+                fabAddToMultiSign!!.visibility = View.GONE
+            }
+
+            R.id.nav_setting -> {
+                fabBack!!.visibility = View.GONE
+                fabSign!!.visibility = View.GONE
+                fabMultiSignList!!.visibility = View.GONE
+                fabAddToMultiSign!!.visibility = View.GONE
+
+                val settingIntent = Intent()
+                settingIntent.action = Constants.ACTION.ACTION_WEBSERVICE_FTP_IP_ADDRESS_SHOW_PASSWORD_DIALOG
+                sendBroadcast(settingIntent)
             }
 
             R.id.nav_about -> {
@@ -1083,8 +1269,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val writePermission =
             ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-        val networkPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
+        var accessMediaPermission = 0
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            accessMediaPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION)
+        }
+
+
+
+        val networkPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
 
         /*val coarsePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
 
@@ -1108,6 +1302,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         if (writePermission != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (accessMediaPermission != PackageManager.PERMISSION_GRANTED) {
+                listPermissionsNeeded.add(Manifest.permission.ACCESS_MEDIA_LOCATION)
+            }
         }
 
         if (networkPermission != PackageManager.PERMISSION_GRANTED) {
@@ -1173,6 +1373,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 // Initialize the map with both permissions
                 perms!![Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
                 perms[Manifest.permission.WRITE_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                {
+                    perms[Manifest.permission.ACCESS_MEDIA_LOCATION] = PackageManager.PERMISSION_GRANTED
+                }
                 perms[Manifest.permission.INTERNET] = PackageManager.PERMISSION_GRANTED
                 //perms[Manifest.permission.ACCESS_COARSE_LOCATION] = PackageManager.PERMISSION_GRANTED
                 //perms[Manifest.permission.BLUETOOTH_ADMIN] = PackageManager.PERMISSION_GRANTED
@@ -1188,88 +1392,187 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     for (i in permissions.indices)
                         perms[permissions[i]] = grantResults[i]
                     // Check for both permissions
-                    if (perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED
-                        && perms[Manifest.permission.WRITE_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED
-                        && perms[Manifest.permission.INTERNET] == PackageManager.PERMISSION_GRANTED
-                        //&& perms[Manifest.permission.ACCESS_COARSE_LOCATION] == PackageManager.PERMISSION_GRANTED
-                        //&& perms[Manifest.permission.BLUETOOTH_ADMIN] == PackageManager.PERMISSION_GRANTED
-                        //&& perms[Manifest.permission.BLUETOOTH] == PackageManager.PERMISSION_GRANTED
-                        && perms[Manifest.permission.ACCESS_NETWORK_STATE] == PackageManager.PERMISSION_GRANTED
-                        && perms[Manifest.permission.ACCESS_WIFI_STATE] == PackageManager.PERMISSION_GRANTED
-                        && perms[Manifest.permission.CHANGE_WIFI_STATE] == PackageManager.PERMISSION_GRANTED
-                        && perms[Manifest.permission.CAMERA] == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        Log.d(mTAG, "write permission granted")
 
-                        // process the normal flow
-                        //else any one or both the permissions are not granted
-                        //init_folder_and_files()
-                        //init_setting();
-                        initView()
-
-                    } else {
-                        Log.d(mTAG, "Some permissions are not granted ask again ")
-                        //permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
-                        //                        // shouldShowRequestPermissionRationale will return true
-                        //show the dialog or snackbar saying its necessary and try again otherwise proceed with setup.
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(
-                                this,
-                                Manifest.permission.READ_EXTERNAL_STORAGE
-                            )
-                            || ActivityCompat.shouldShowRequestPermissionRationale(
-                                this,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE
-                            )
-                            || ActivityCompat.shouldShowRequestPermissionRationale(
-                                this,
-                                Manifest.permission.INTERNET
-                            )
-                            /*|| ActivityCompat.shouldShowRequestPermissionRationale(
-                                this,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
-                            )
-                            || ActivityCompat.shouldShowRequestPermissionRationale(
-                                this,
-                                Manifest.permission.BLUETOOTH_ADMIN
-                            )
-                            || ActivityCompat.shouldShowRequestPermissionRationale(
-                                this,
-                                Manifest.permission.BLUETOOTH
-                            )*/
-                            || ActivityCompat.shouldShowRequestPermissionRationale(
-                                this,
-                                Manifest.permission.ACCESS_NETWORK_STATE
-                            )
-                            || ActivityCompat.shouldShowRequestPermissionRationale(
-                                this,
-                                Manifest.permission.ACCESS_WIFI_STATE
-                            )
-                            || ActivityCompat.shouldShowRequestPermissionRationale(
-                                this,
-                                Manifest.permission.CHANGE_WIFI_STATE
-                            )
-                            || ActivityCompat.shouldShowRequestPermissionRationale(
-                                this,
-                                Manifest.permission.CAMERA
-                            )
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        if (perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.WRITE_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.ACCESS_MEDIA_LOCATION] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.INTERNET] == PackageManager.PERMISSION_GRANTED
+                            //&& perms[Manifest.permission.ACCESS_COARSE_LOCATION] == PackageManager.PERMISSION_GRANTED
+                            //&& perms[Manifest.permission.BLUETOOTH_ADMIN] == PackageManager.PERMISSION_GRANTED
+                            //&& perms[Manifest.permission.BLUETOOTH] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.ACCESS_NETWORK_STATE] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.ACCESS_WIFI_STATE] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.CHANGE_WIFI_STATE] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.CAMERA] == PackageManager.PERMISSION_GRANTED
                         ) {
-                            showDialogOK{ _, which ->
+                            Log.d(mTAG, "write permission granted")
+
+                            // process the normal flow
+                            //else any one or both the permissions are not granted
+                            //init_folder_and_files()
+                            //init_setting();
+                            initView()
+
+                        } else {
+                            Log.d(mTAG, "Some permissions are not granted ask again ")
+                            //permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
+                            //                        // shouldShowRequestPermissionRationale will return true
+                            //show the dialog or snackbar saying its necessary and try again otherwise proceed with setup.
+                            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.READ_EXTERNAL_STORAGE
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.ACCESS_MEDIA_LOCATION
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.INTERNET
+                                )
+                                /*|| ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.BLUETOOTH_ADMIN
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.BLUETOOTH
+                                )*/
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.ACCESS_NETWORK_STATE
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.ACCESS_WIFI_STATE
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.CHANGE_WIFI_STATE
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.CAMERA
+                                )
+                            ) {
+                                showDialogOK{ _, which ->
                                     when (which) {
                                         DialogInterface.BUTTON_POSITIVE -> checkAndRequestPermissions()
                                         DialogInterface.BUTTON_NEGATIVE ->
                                             // proceed with logic by disabling the related features or quit the app.
                                             finish()
                                     }
-                            }
+                                }
+                            } else {
+                                Toast.makeText(this, "Go to settings and enable permissions", Toast.LENGTH_LONG)
+                                    .show()
+                                //                            //proceed with logic by disabling the related features or quit the app.
+                            }//|| ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_NETWORK_STATE )
+                            //|| ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_WIFI_STATE )
+                            //permission is denied (and never ask again is  checked)
+                            //shouldShowRequestPermissionRationale will return false
+                        }
+                    } else { //Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+                        if (perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.WRITE_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED
+                            //&& perms[Manifest.permission.ACCESS_MEDIA_LOCATION] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.INTERNET] == PackageManager.PERMISSION_GRANTED
+                            //&& perms[Manifest.permission.ACCESS_COARSE_LOCATION] == PackageManager.PERMISSION_GRANTED
+                            //&& perms[Manifest.permission.BLUETOOTH_ADMIN] == PackageManager.PERMISSION_GRANTED
+                            //&& perms[Manifest.permission.BLUETOOTH] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.ACCESS_NETWORK_STATE] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.ACCESS_WIFI_STATE] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.CHANGE_WIFI_STATE] == PackageManager.PERMISSION_GRANTED
+                            && perms[Manifest.permission.CAMERA] == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            Log.d(mTAG, "write permission granted")
+
+                            // process the normal flow
+                            //else any one or both the permissions are not granted
+                            //init_folder_and_files()
+                            //init_setting();
+                            initView()
+
                         } else {
-                            Toast.makeText(this, "Go to settings and enable permissions", Toast.LENGTH_LONG)
-                                .show()
-                            //                            //proceed with logic by disabling the related features or quit the app.
-                        }//|| ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_NETWORK_STATE )
-                        //|| ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_WIFI_STATE )
-                        //permission is denied (and never ask again is  checked)
-                        //shouldShowRequestPermissionRationale will return false
-                    }//&& perms.get(Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED &&
+                            Log.d(mTAG, "Some permissions are not granted ask again ")
+                            //permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
+                            //                        // shouldShowRequestPermissionRationale will return true
+                            //show the dialog or snackbar saying its necessary and try again otherwise proceed with setup.
+                            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.READ_EXTERNAL_STORAGE
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                )
+                                /*|| ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.ACCESS_MEDIA_LOCATION
+                                )*/
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.INTERNET
+                                )
+                                /*|| ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.BLUETOOTH_ADMIN
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.BLUETOOTH
+                                )*/
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.ACCESS_NETWORK_STATE
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.ACCESS_WIFI_STATE
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.CHANGE_WIFI_STATE
+                                )
+                                || ActivityCompat.shouldShowRequestPermissionRationale(
+                                    this,
+                                    Manifest.permission.CAMERA
+                                )
+                            ) {
+                                showDialogOK{ _, which ->
+                                    when (which) {
+                                        DialogInterface.BUTTON_POSITIVE -> checkAndRequestPermissions()
+                                        DialogInterface.BUTTON_NEGATIVE ->
+                                            // proceed with logic by disabling the related features or quit the app.
+                                            finish()
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(this, "Go to settings and enable permissions", Toast.LENGTH_LONG)
+                                    .show()
+                                //                            //proceed with logic by disabling the related features or quit the app.
+                            }//|| ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_NETWORK_STATE )
+                            //|| ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_WIFI_STATE )
+                            //permission is denied (and never ask again is  checked)
+                            //shouldShowRequestPermissionRationale will return false
+                        }
+                    }
+
+
+                    //&& perms.get(Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED &&
                     //perms.get(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED
                 }
             }
@@ -2001,6 +2304,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 refreshIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_FRAGMENT_REFRESH
                                 //refreshIntent.putExtra("BARCODE", barcode!!.poBarcodeByScan)
                                 mContext!!.sendBroadcast(refreshIntent)
+
+                                //show fab
+                                fabAddToMultiSign!!.visibility = View.VISIBLE
+                                fabMultiSignList!!.visibility = View.VISIBLE
                             } else {
 
                                 toastLong(rjSignatureList.dataList[0].result2)
@@ -2101,8 +2408,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                     signatureDetailList.add(rjSignatureDetail)
                                 }
 
+                                fabAddToMultiSign!!.visibility = View.GONE
+                                fabMultiSignList!!.visibility = View.GONE
+
                                 fabBack!!.visibility = View.VISIBLE
-                                fabSign!!.visibility = View.VISIBLE
+                                //fabSign!!.visibility = View.VISIBLE
 
                                 val refreshIntent = Intent()
                                 refreshIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DETAIL_FRAGMENT_REFRESH
@@ -2163,13 +2473,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }//onResponse
     }
 
-    fun confirmShipmentSignature(returnOrder: String, signFileName: String, userName: String, type: String) {
+    fun confirmShipmentSignature(shipmentNo: String, signFileName: String, userName: String, type: String) {
         Log.e(mTAG, "=== confirmShipmentSignature start ===")
 
-        Log.e(mTAG, "returnOrder = $returnOrder, signFileName = $signFileName, userName = $userName, type = $type")
+        Log.e(mTAG, "shipmentNo = $shipmentNo, signFileName = $signFileName, userName = $userName, type = $type")
 
         val para = HttpShipmentSignatureConfirmPara()
-        para.data1 = returnOrder
+        para.data1 = shipmentNo
         para.data2 = signFileName
         para.data3 = userName
         para.data4 = type
@@ -2203,9 +2513,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         if (rjShipmentSignatureConfirm.result == "0") {
                             val successIntent = Intent()
                             if (signState == SignState.GUARD_UPLOADED) {
-                                successIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_SUCCESS
+                                if (!isSignMulti) {
+                                    successIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_SUCCESS
+                                } else {
+                                    successIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_SUCCESS
+                                }
                             } else if (signState == SignState.DRIVER_CONFIRM) {
-                                successIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_SUCCESS
+                                if (!isSignMulti) {
+                                    successIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_SUCCESS
+                                } else {
+                                    successIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_SUCCESS
+                                }
                             }
 
                             successIntent.putExtra("SEND_ORDER", currentShipmentNo)
@@ -2213,9 +2531,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         } else {
                             val failedIntent = Intent()
                             if (signState == SignState.GUARD_UPLOADED) {
-                                failedIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_FAILED
+                                if (!isSignMulti) {
+                                    failedIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_FAILED
+                                } else {
+                                    failedIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_FAILED
+                                }
                             } else if (signState == SignState.DRIVER_CONFIRM) {
-                                failedIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_FAILED
+                                if (!isSignMulti) {
+                                    failedIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_FAILED
+                                } else {
+                                    failedIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_FAILED
+                                }
                             }
                             mContext!!.sendBroadcast(failedIntent)
 
@@ -2331,5 +2657,66 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
+    private fun showIPSettingPasswordDialog() {
 
+        Log.e(mTAG, "=== showIPSettingPasswordDialog start ===")
+
+
+
+        // get prompts.xml view
+        /*LayoutInflater layoutInflater = LayoutInflater.from(Nfc_read_app.this);
+        View promptView = layoutInflater.inflate(R.layout.input_dialog, null);*/
+        val promptView = View.inflate(this@MainActivity, R.layout.webserviceftp_ip_setting_dialog, null)
+
+        val alertDialogBuilder = AlertDialog.Builder(this@MainActivity).create()
+        alertDialogBuilder.setView(promptView)
+
+        //final EditText editFileName = (EditText) promptView.findViewById(R.id.editFileName);
+        val textViewSupplierDialog = promptView.findViewById<TextView>(R.id.textViewSettingDialog)
+
+        //textViewSupplierDialog.setText(R.string.supplexier_enter_password)
+
+        val editTextPassword = promptView.findViewById<EditText>(R.id.editTextPassword)
+        //val editTextSupplierNumber = promptView.findViewById<EditText>(R.id.editTextSupplierNumber)
+        //editTextSupplierName.hint = ""
+        //editTextSupplierNumber.visibility = View.GONE
+
+
+
+        val btnCancel = promptView.findViewById<Button>(R.id.btnSettingDialogCancel)
+        val btnConfirm = promptView.findViewById<Button>(R.id.btnSettingDialogConfirm)
+        //val btnDelete = promptView.findViewById<Button>(R.id.btnSupplierDialogDelete)
+        //btnDelete.visibility = View.VISIBLE
+
+
+
+        alertDialogBuilder.setCancelable(false)
+
+        //btnDelete!!.setOnClickListener {
+        //    alertDialogBuilder.dismiss()
+        //}
+
+        btnCancel!!.setOnClickListener {
+            alertDialogBuilder.dismiss()
+        }
+        btnConfirm!!.setOnClickListener {
+
+            if (editTextPassword.text.toString() == "Magton!c") {
+
+                val intent = Intent(mContext, WebserviceFtpActivity::class.java)
+                startActivity(intent)
+
+
+
+
+            } else {
+                toast(getString(R.string.password_mismatch))
+            }
+
+
+
+            alertDialogBuilder.dismiss()
+        }
+        alertDialogBuilder.show()
+    }
 }

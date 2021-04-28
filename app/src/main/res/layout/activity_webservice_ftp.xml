@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/webservice_ftp_container">
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:text="base"
+                android:gravity="center"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <EditText
+                    android:id="@+id/base_ip_addr_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLength="3"
+                    android:lines="1"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/base_ip_addr_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLength="3"
+                    android:lines="1"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/base_ip_addr_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLength="3"
+                    android:lines="1"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/base_ip_addr_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLength="3"
+                    android:lines="1"
+                    android:inputType="number"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:text="iep"
+                android:gravity="center"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <EditText
+                    android:id="@+id/iep_ip_addr_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLength="3"
+                    android:lines="1"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/iep_ip_addr_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLength="3"
+                    android:lines="1"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/iep_ip_addr_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLength="3"
+                    android:lines="1"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/iep_ip_addr_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLength="3"
+                    android:lines="1"
+                    android:inputType="number"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:text="ftp"
+                android:gravity="center"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <EditText
+                    android:id="@+id/ftp_ip_addr_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLength="3"
+                    android:lines="1"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/ftp_ip_addr_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLength="3"
+                    android:lines="1"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/ftp_ip_addr_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLength="3"
+                    android:lines="1"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/ftp_ip_addr_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:maxLength="3"
+                    android:lines="1"
+                    android:inputType="number"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp">
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnConfirmWebserviceFtp"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="@string/confirm"/>
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>

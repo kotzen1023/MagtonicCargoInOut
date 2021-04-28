@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/multisign_container">
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textViewMultiSign"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:textColor="@color/md_black_1000"
+            android:text="total"
+            android:textSize="@dimen/text_size_30"
+            android:gravity="center"
+            android:textStyle="bold"/>
+
+        <ListView
+            android:layout_weight="1"
+            android:id="@+id/listViewMultiSign"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <ListView
+            android:layout_weight="1"
+            android:id="@+id/listViewMultiSignDetail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            >
+            <Button
+                android:id="@+id/btnClearMultiPrev"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/shipment_signature_multi_prev"
+                android:layout_weight="1"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+            <Button
+                android:id="@+id/btnClearMultiSign"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/draw_clear_screen"
+                android:layout_weight="1"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+            <Button
+                android:id="@+id/btnSignMultiSign"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/shipment_signature_multi_sign"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+
+
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>

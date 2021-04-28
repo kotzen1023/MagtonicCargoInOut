@@ -17,14 +17,12 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.isEraser
+import com.magtonic.magtoniccargoinout.MainActivity.Companion.isSignMulti
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.penColor
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.penWidth
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.signState
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.signatureDetailList
-import com.magtonic.magtoniccargoinout.ui.data.Constants
-import com.magtonic.magtoniccargoinout.ui.data.FTPUtils
-import com.magtonic.magtoniccargoinout.ui.data.FileUtils
-import com.magtonic.magtoniccargoinout.ui.data.PaintBoard
+import com.magtonic.magtoniccargoinout.MainActivity.Companion.signatureMultiSignList
 import kotlinx.coroutines.*
 
 
@@ -35,6 +33,7 @@ import java.io.OutputStream
 
 import kotlin.coroutines.CoroutineContext
 import com.magtonic.magtoniccargoinout.MainActivity.SignState
+import com.magtonic.magtoniccargoinout.ui.data.*
 
 class SignActivity : AppCompatActivity() {
     private val mTAG = SignActivity::class.java.name
@@ -71,6 +70,7 @@ class SignActivity : AppCompatActivity() {
     private var imageViewShowSignatureGuard: ImageView?=null
     private var uploadSignNameDriver: String = ""
     private var uploadSignNameGuard: String = ""
+    //private var isSignMulti: Boolean = false
     private var sendOrder: String = ""
     private var title: String = ""
     private var sendFragment: String = ""
@@ -79,6 +79,8 @@ class SignActivity : AppCompatActivity() {
 
     private var signImageUriPath: Uri?= null
 
+    private var signatureMultiSignListDriver: ArrayList<ShipmentSignatureMultiItem> = ArrayList()
+    private var signatureMultiSignListGuard: ArrayList<ShipmentSignatureMultiItem> = ArrayList()
     /*enum class SignState {
         INITIAL,
         DRIVER_UPLOADED,
@@ -99,6 +101,7 @@ class SignActivity : AppCompatActivity() {
         signState = SignState.INITIAL
 
         val intent = this.intent
+        isSignMulti = intent.getBooleanExtra("IS_SIGN_MULTI", false)
         sendOrder = intent.getStringExtra("SEND_ORDER") as String
         title = intent.getStringExtra("TITLE") as String
         sendFragment = intent.getStringExtra("SEND_FRAGMENT") as String
@@ -112,7 +115,7 @@ class SignActivity : AppCompatActivity() {
         }
 
 
-
+        Log.e(mTAG, "isSignMulti = $isSignMulti")
         Log.e(mTAG, "sendOrder = $sendOrder")
         Log.e(mTAG, "title = $title")
         Log.e(mTAG, "sendFragment = $sendFragment")
@@ -160,29 +163,59 @@ class SignActivity : AppCompatActivity() {
         btnSignConfirm!!.setOnClickListener {
             progressBar!!.visibility = View.VISIBLE
 
-            val confirmIntent = Intent()
-            confirmIntent.putExtra("SEND_ORDER", sendOrder)
-            when (sendFragment) {
-                "SHIPMENT_SIGNATURE_FRAGMENT" -> {
-                    if (signState == SignState.GUARD_UPLOADED) {
-                        confirmIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_ACTION
-                        confirmIntent.putExtra("SIGN_FILE_NAME", uploadSignNameDriver)
-                    } else if (signState == SignState.DRIVER_CONFIRM) {
-                        confirmIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_ACTION
-                        confirmIntent.putExtra("SIGN_FILE_NAME", uploadSignNameGuard)
-                    } else {
-                        Log.e(mTAG, "signState = $signState")
-                    }
+            if (!isSignMulti) {
+                val confirmIntent = Intent()
+                confirmIntent.putExtra("SEND_ORDER", sendOrder)
+                when (sendFragment) {
+                    "SHIPMENT_SIGNATURE_FRAGMENT" -> {
+                        if (signState == SignState.GUARD_UPLOADED) {
+                            confirmIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_ACTION
+                            confirmIntent.putExtra("SIGN_FILE_NAME", uploadSignNameDriver)
+                        } else if (signState == SignState.DRIVER_CONFIRM) {
+                            confirmIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_ACTION
+                            confirmIntent.putExtra("SIGN_FILE_NAME", uploadSignNameGuard)
+                        } else {
+                            Log.e(mTAG, "signState = $signState")
+                        }
 
+
+                    }
 
                 }
 
+                signContext!!.sendBroadcast(confirmIntent)
+            } else { //guard sign uploaded, start confirm
+
+                Log.e(mTAG, "confirm sign multi, isSignMulti = $isSignMulti")
+
+                progressBar!!.visibility = View.VISIBLE
+
+                Log.e(mTAG, "sign multi, signatureMultiSignList.size = ${signatureMultiSignList.size}")
+
+                if (signState == SignState.GUARD_UPLOADED) { //SignState.GUARD_UPLOADED, then confirm driver
+                    Log.e(mTAG, "SignState.GUARD_UPLOADED")
+                    signatureMultiSignListDriver.clear()
+                    for (item in signatureMultiSignList) {
+                        signatureMultiSignListDriver.add(item)
+                    }
+
+                    val uploadStartIntent = Intent()
+                    uploadStartIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_START
+                    signContext!!.sendBroadcast(uploadStartIntent)
+                } else if (signState == SignState.DRIVER_CONFIRM) { //SignState.DRIVER_CONFIRM, then confirm guard
+                    Log.e(mTAG, "SignState.DRIVER_CONFIRM")
+                    signatureMultiSignListGuard.clear()
+                    for (item in signatureMultiSignList) {
+                        signatureMultiSignListGuard.add(item)
+                    }
+
+                    val uploadStartIntent = Intent()
+                    uploadStartIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_START
+                    signContext!!.sendBroadcast(uploadStartIntent)
+                }
             }
 
 
-
-
-            signContext!!.sendBroadcast(confirmIntent)
         }
 
         //for action bar
@@ -377,6 +410,12 @@ class SignActivity : AppCompatActivity() {
                                 "SHIPMENT_SIGNATURE_FRAGMENT" -> {
                                     toast(getString(R.string.shipment_signature_upload_success))
                                     btnSignConfirm!!.text = getString(R.string.shipment_sign_confirm)
+
+                                    var tempTitle = ""
+                                    if (signState == SignState.GUARD_UPLOADED) {
+                                        tempTitle = "$title - " +getString(R.string.shipment_sign_confirm)
+                                    }
+                                    actionBar!!.title = tempTitle
                                 }
 
                             }
@@ -468,6 +507,338 @@ class SignActivity : AppCompatActivity() {
 
                             finish()
                         }
+
+                        //multi sign driver sign ftp upload start
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_START, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_START")
+
+                            if (signatureMultiSignListDriver.size > 0) {
+
+                                Log.e(mTAG, "=== signatureMultiSignListDriver list start===")
+                                for (i in 0 until signatureMultiSignListDriver.size) {
+                                    Log.d(mTAG, "signatureMultiSignListDriver[$i]=${signatureMultiSignListDriver[i].getShipmentNo()}")
+                                }
+                                Log.e(mTAG, "=== signatureMultiSignListDriver list end  ===")
+
+                                //get first
+                                uploadMulti(signatureMultiSignListDriver[0].getShipmentNo() as String)
+
+                            } else {
+                                toastLong(getString(R.string.shipment_signature_multi_driver_upload_list_empty))
+                            }
+
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_TIMEOUT, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_TIMEOUT")
+                            progressBar!!.visibility = View.GONE
+                            toast(getString(R.string.connect_timeout))
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_UNKNOWN_HOST, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_UNKNOWN_HOST")
+                            progressBar!!.visibility = View.GONE
+                            toast(getString(R.string.toast_server_error))
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_FAILED, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_FAILED")
+                            progressBar!!.visibility = View.GONE
+                            toast(getString(R.string.ftp_connect_error))
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_FAILED, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_FAILED")
+                            progressBar!!.visibility = View.GONE
+
+                            toast(getString(R.string.shipment_signature_upload_failed))
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_SUCCESS, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_SUCCESS")
+
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_COMPLETE, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_COMPLETE")
+
+                            //remove first one
+                            if (signatureMultiSignListDriver.size > 0) {
+                                //remove save image
+                                deleteImage()
+                                //remove first one from list
+                                signatureMultiSignListDriver.removeAt(0)
+                            }
+
+                            if (signatureMultiSignListDriver.size > 0) {
+                                //Do next upload
+                                Log.e(mTAG, "=== signatureMultiSignListDriver list start===")
+                                for (i in 0 until signatureMultiSignListDriver.size) {
+                                    Log.d(mTAG, "signatureMultiSignListDriver[$i]=${signatureMultiSignListDriver[i].getShipmentNo()}")
+                                }
+                                Log.e(mTAG, "=== signatureMultiSignListDriver list end  ===")
+
+                                //get first
+                                uploadMulti(signatureMultiSignListDriver[0].getShipmentNo() as String)
+                            } else {
+                                //delete image
+
+                                deleteImage()
+                                progressBar!!.visibility = View.GONE
+                                signState = SignState.DRIVER_UPLOADED
+                                var tempTitle = ""
+                                if (signState == SignState.DRIVER_UPLOADED) {
+                                    tempTitle = "$title - " +getString(R.string.shipment_signature_guard)
+                                }
+                                actionBar!!.title = tempTitle
+                                imageViewShowSignatureDriver!!.setImageBitmap(paintBoard!!.bitmap)
+                                paintBoard!!.clear()
+                                toastLong(getString(R.string.shipment_signature_let_guard_sign))
+
+                            }
+
+
+                        }
+
+                        //multi sign guard sign ftp upload start
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_START, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_START")
+
+                            if (signatureMultiSignListGuard.size > 0) {
+
+                                Log.e(mTAG, "=== signatureMultiSignListGuard list start===")
+                                for (i in 0 until signatureMultiSignListGuard.size) {
+                                    Log.d(mTAG, "signatureMultiSignListGuard[$i]=${signatureMultiSignListGuard[i].getShipmentNo()}")
+                                }
+                                Log.e(mTAG, "=== signatureMultiSignListGuard list end  ===")
+
+                                //get first
+                                uploadMulti(signatureMultiSignListGuard[0].getShipmentNo() as String)
+
+                            } else {
+                                toastLong(getString(R.string.shipment_signature_multi_guard_upload_list_empty))
+                            }
+
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_TIMEOUT, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_TIMEOUT")
+                            progressBar!!.visibility = View.GONE
+                            toast(getString(R.string.connect_timeout))
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_UNKNOWN_HOST, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_UNKNOWN_HOST")
+                            progressBar!!.visibility = View.GONE
+                            toast(getString(R.string.toast_server_error))
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_FAILED, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_FAILED")
+                            progressBar!!.visibility = View.GONE
+                            toast(getString(R.string.ftp_connect_error))
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_FAILED, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_FAILED")
+                            progressBar!!.visibility = View.GONE
+
+                            toast(getString(R.string.shipment_signature_upload_failed))
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_SUCCESS, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_SUCCESS")
+
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_COMPLETE, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_COMPLETE")
+
+                            //remove first one
+                            if (signatureMultiSignListGuard.size > 0) {
+                                //remove save image
+                                deleteImage()
+                                //remove first one from list
+                                signatureMultiSignListGuard.removeAt(0)
+                            }
+
+                            if (signatureMultiSignListGuard.size > 0) {
+                                //Do next upload
+                                Log.e(mTAG, "=== signatureMultiSignListGuard list start===")
+                                for (i in 0 until signatureMultiSignListGuard.size) {
+                                    Log.d(mTAG, "signatureMultiSignListGuard[$i]=${signatureMultiSignListGuard[i].getShipmentNo()}")
+                                }
+                                Log.e(mTAG, "=== signatureMultiSignListGuard list end  ===")
+
+                                //get first
+                                uploadMulti(signatureMultiSignListGuard[0].getShipmentNo() as String)
+                            } else {
+                                //delete image
+
+                                /*deleteImage()
+                                progressBar!!.visibility = View.GONE
+                                signState = SignState.GUARD_UPLOADED
+                                var tempTitle = ""
+                                if (signState == SignState.GUARD_UPLOADED) {
+                                    tempTitle = "$title - " +getString(R.string.shipment_sign_confirm)
+                                }
+                                actionBar!!.title = tempTitle
+                                imageViewShowSignatureGuard!!.setImageBitmap(paintBoard!!.bitmap)
+                                paintBoard!!.clear()
+                                toastLong(getString(R.string.shipment_sign_confirm))*/
+
+                                progressBar!!.visibility = View.GONE
+
+                                linearLayoutSign!!.visibility = View.GONE
+                                linearLayoutUpload!!.visibility = View.VISIBLE
+
+                                when (sendFragment) {
+                                    "SHIPMENT_SIGNATURE_FRAGMENT" -> {
+
+                                        for (item in signatureMultiSignList) {
+                                            val promptView1 = View.inflate(this@SignActivity, R.layout.fragment_shipment_signature_detail_item, null)
+
+                                            val signHeader1 = promptView1.findViewById<TextView>(R.id.shipmentSignatureDetailHeader)
+                                            val signContent1 = promptView1.findViewById<TextView>(R.id.shipmentSignatureDetailContent)
+                                            signHeader1.text = item.getShipmentNo()
+                                            signContent1.visibility = View.GONE
+                                            linearLayoutSignDetailList!!.addView(promptView1)
+                                        }
+
+                                    }
+
+                                }
+
+                                signState = SignState.GUARD_UPLOADED
+
+                                imageViewShowSignatureGuard!!.setImageBitmap(paintBoard!!.bitmap)
+
+                            }
+
+
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_START, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_START")
+                            if (signatureMultiSignListDriver.size > 0) {
+
+                                Log.e(mTAG, "=== signatureMultiSignListDriver list start===")
+                                for (i in 0 until signatureMultiSignListDriver.size) {
+                                    Log.d(mTAG, "signatureMultiSignListDriver[$i]=${signatureMultiSignListDriver[i].getShipmentNo()}")
+                                }
+                                Log.e(mTAG, "=== signatureMultiSignListDriver list end  ===")
+
+                                //get first
+                                //uploadMulti(signatureMultiSignListDriver[0].getShipmentNo() as String)
+                                uploadSignNameDriver = signatureMultiSignListDriver[0].getShipmentNo() + "1.jpg"
+                                val startIntent = Intent()
+                                startIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_ACTION
+                                startIntent.putExtra("SHIPMENT_NO", signatureMultiSignListDriver[0].getShipmentNo() )
+                                startIntent.putExtra("SIGN_FILE_NAME", uploadSignNameDriver)
+                                signContext!!.sendBroadcast(startIntent)
+
+                            } else {
+                                progressBar!!.visibility = View.GONE
+                                toastLong(getString(R.string.shipment_signature_multi_driver_upload_list_empty))
+                            }
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_FAILED, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_FAILED")
+                            progressBar!!.visibility = View.GONE
+                            toast(getString(R.string.shipment_signature_confirm_failed))
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_SUCCESS, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_SUCCESS")
+                            //remove first one
+                            if (signatureMultiSignListDriver.size > 0) {
+                                //remove first one from list
+                                signatureMultiSignListDriver.removeAt(0)
+                            }
+
+                            if (signatureMultiSignListDriver.size > 0) {
+                                //Do next confirm
+                                Log.e(mTAG, "=== signatureMultiSignListDriver list start===")
+                                for (i in 0 until signatureMultiSignListDriver.size) {
+                                    Log.d(mTAG, "signatureMultiSignListDriver[$i]=${signatureMultiSignListDriver[i].getShipmentNo()}")
+                                }
+                                Log.e(mTAG, "=== signatureMultiSignListDriver list end  ===")
+
+                                //get first
+                                uploadSignNameDriver = signatureMultiSignListDriver[0].getShipmentNo() + "1.jpg"
+                                val startIntent = Intent()
+                                startIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_ACTION
+                                startIntent.putExtra("SHIPMENT_NO", signatureMultiSignListDriver[0].getShipmentNo() )
+                                startIntent.putExtra("SIGN_FILE_NAME", uploadSignNameDriver)
+                                signContext!!.sendBroadcast(startIntent)
+                            } else {
+                                Log.e(mTAG, "SignState.DRIVER_CONFIRM")
+                                signState = SignState.DRIVER_CONFIRM
+
+                                signatureMultiSignListGuard.clear()
+                                for (item in signatureMultiSignList) {
+                                    signatureMultiSignListGuard.add(item)
+                                }
+
+                                //start guard confirm
+                                val startIntent = Intent()
+                                startIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_START
+                                signContext!!.sendBroadcast(startIntent)
+
+                            }
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_START, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_START")
+                            if (signatureMultiSignListGuard.size > 0) {
+
+                                Log.e(mTAG, "=== signatureMultiSignListGuard list start===")
+                                for (i in 0 until signatureMultiSignListGuard.size) {
+                                    Log.d(mTAG, "signatureMultiSignListGuard[$i]=${signatureMultiSignListGuard[i].getShipmentNo()}")
+                                }
+                                Log.e(mTAG, "=== signatureMultiSignListGuard list end  ===")
+
+                                //get first
+                                uploadSignNameGuard = signatureMultiSignListGuard[0].getShipmentNo() + "2.jpg"
+                                val startIntent = Intent()
+                                startIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_ACTION
+                                startIntent.putExtra("SHIPMENT_NO", signatureMultiSignListGuard[0].getShipmentNo() )
+                                startIntent.putExtra("SIGN_FILE_NAME", uploadSignNameGuard)
+                                signContext!!.sendBroadcast(startIntent)
+
+                            } else {
+                                progressBar!!.visibility = View.GONE
+                                toastLong(getString(R.string.shipment_signature_multi_driver_upload_list_empty))
+                            }
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_FAILED, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_FAILED")
+                            progressBar!!.visibility = View.GONE
+                            toast(getString(R.string.shipment_signature_confirm_failed))
+                        }
+                        intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_SUCCESS, ignoreCase = true) -> {
+                            Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_SUCCESS")
+                            //remove first one
+                            if (signatureMultiSignListGuard.size > 0) {
+                                //remove first one from list
+                                signatureMultiSignListGuard.removeAt(0)
+                            }
+
+                            if (signatureMultiSignListGuard.size > 0) {
+                                //Do next confirm
+                                Log.e(mTAG, "=== signatureMultiSignListGuard list start===")
+                                for (i in 0 until signatureMultiSignListGuard.size) {
+                                    Log.d(mTAG, "signatureMultiSignListGuard[$i]=${signatureMultiSignListGuard[i].getShipmentNo()}")
+                                }
+                                Log.e(mTAG, "=== signatureMultiSignListGuard list end  ===")
+
+                                //get first
+                                uploadSignNameGuard = signatureMultiSignListGuard[0].getShipmentNo() + "2.jpg"
+                                val startIntent = Intent()
+                                startIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_ACTION
+                                startIntent.putExtra("SHIPMENT_NO", signatureMultiSignListGuard[0].getShipmentNo() )
+                                startIntent.putExtra("SIGN_FILE_NAME", uploadSignNameGuard)
+                                signContext!!.sendBroadcast(startIntent)
+                            } else {
+
+                                progressBar!!.visibility = View.GONE
+                                signState = SignState.GUARD_CONFIRM
+
+                                val completeIntent = Intent()
+                                completeIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_SIGN_CONFIRM_COMPLETE
+                                signContext!!.sendBroadcast(completeIntent)
+
+                                finish()
+
+
+                            }
+                        }
+                        //multi sign end
                     }
 
                 }
@@ -495,6 +866,32 @@ class SignActivity : AppCompatActivity() {
 
             filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_FAILED)
             filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_SUCCESS)
+
+            //sign multi, ftp upload, driver
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_START)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_TIMEOUT)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_UNKNOWN_HOST)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_FAILED)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_FAILED)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_SUCCESS)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_COMPLETE)
+            //sign multi, ftp upload, guard
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_START)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_TIMEOUT)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_UNKNOWN_HOST)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_FAILED)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_FAILED)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_SUCCESS)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_COMPLETE)
+            //sign multi, confirm, driver
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_START)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_FAILED)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_SUCCESS)
+            //sign multi, confirm, guard
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_START)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_FAILED)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_SUCCESS)
+
             signContext?.registerReceiver(mReceiver, filter)
             isRegister = true
             Log.d(mTAG, "registerReceiver mReceiver")
@@ -529,12 +926,6 @@ class SignActivity : AppCompatActivity() {
     override fun onPause() {
         Log.i(mTAG, "onPause")
         super.onPause()
-
-        //disable Scan2Key Setting
-        val enableServiceIntent = Intent()
-        enableServiceIntent.action = "unitech.scanservice.scan2key_setting"
-        enableServiceIntent.putExtra("scan2key", true)
-        sendBroadcast(enableServiceIntent)
     }
 
     override fun onBackPressed() {
@@ -662,7 +1053,12 @@ class SignActivity : AppCompatActivity() {
     private fun deleteImage() {
 
         val resolver = signContext!!.contentResolver
-        val ret = resolver.delete (signImageUriPath as Uri,null ,null )
+        var ret = -1
+        try {
+            ret = resolver.delete(signImageUriPath as Uri, null, null)
+        } catch (e: SecurityException ) {
+            Log.e(mTAG, "exception: $e")
+        }
 
         Log.e(mTAG, "ret = $ret")
     }
@@ -739,44 +1135,102 @@ class SignActivity : AppCompatActivity() {
         }
         btnConfirm!!.setOnClickListener {
 
-            /*val sdf = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
+
+
+            if (!isSignMulti) {
+                /*val sdf = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
             val currentDateAndTime: String = sdf.format(Date())
             uploadSignName = "$currentDateAndTime.jpg"*/
-            //uploadSignName = "$sendOrder.jpg"
+                //uploadSignName = "$sendOrder.jpg"
 
-            val scaledWidth = 320.0 //stick height to 512
-            //val scaledHeight = 512.0 //stick height to 512
-            val aspectRatio =  scaledWidth / paintBoard!!.width
 
-            val scaledHeight = paintBoard!!.height * aspectRatio
+                //saveBitmap(drawContext as Context, paintBoard!!.bitmap, CompressFormat.JPEG,"image/jpeg", fileName)
+                val scaledWidth = 320.0 //stick height to 512
+                //val scaledHeight = 512.0 //stick height to 512
+                val aspectRatio = scaledWidth / paintBoard!!.width
 
-            Log.d(mTAG, "scaledWidth = $scaledWidth, aspectRatio = $aspectRatio, scaledHeight = $scaledHeight")
+                val scaledHeight = paintBoard!!.height * aspectRatio
 
-            val scaledImage = Bitmap.createScaledBitmap(paintBoard!!.bitmap, scaledWidth.toInt(), scaledHeight.toInt(), false)
+                Log.d(
+                    mTAG,
+                    "scaledWidth = $scaledWidth, aspectRatio = $aspectRatio, scaledHeight = $scaledHeight"
+                )
 
-            //saveBitmap(drawContext as Context, paintBoard!!.bitmap, CompressFormat.JPEG,"image/jpeg", fileName)
+                val scaledImage = Bitmap.createScaledBitmap(
+                    paintBoard!!.bitmap,
+                    scaledWidth.toInt(),
+                    scaledHeight.toInt(),
+                    false
+                )
 
-            var uploadSignName = ""
-            if (signState == SignState.DRIVER_UPLOADED) {
-                uploadSignName = sendOrder +"_1.jpg"
-                uploadSignNameDriver = sendOrder +"_1.jpg"
-            } else { //SignState.GUARD_UPLOADED
-                uploadSignName = sendOrder +"_2.jpg"
-                uploadSignNameGuard = sendOrder +"_2.jpg"
-            }
+                var uploadSignName = ""
+                if (signState == SignState.INITIAL) { //SignState.INITIAL, then upload driver
+                    uploadSignName = sendOrder + "1.jpg"
+                    uploadSignNameDriver = sendOrder + "1.jpg"
+                } else if (signState == SignState.DRIVER_UPLOADED) { //SignState.DRIVER_UPLOADED, then upload guard
+                    uploadSignName = sendOrder + "2.jpg"
+                    uploadSignNameGuard = sendOrder + "2.jpg"
+                }
 
-            val path = saveBitmap(this@SignActivity as Context, scaledImage,  uploadSignName)
+                val path = saveBitmap(this@SignActivity as Context, scaledImage, uploadSignName)
 
-            if (path != "")
-            {
+                if (path != "") {
+                    progressBar!!.visibility = View.VISIBLE
+                    val ftpUtils = FTPUtils(
+                        signContext as Context,
+                        Constants.FtpInfo.IP_ADDRESS,
+                        Constants.FtpInfo.PORT,
+                        Constants.FtpInfo.SHIPMENT_USER,
+                        Constants.FtpInfo.SHIPMENT_PASSWORD,
+                        uploadSignName,
+                        path
+                    )
+                    val coroutineFtp = Presenter(ftpUtils)
+                    coroutineFtp.execute()
+                    //val ftpTask = FtpTask()
+                    //ftpTask.execute(ftpUtils)
+                } else {
+                    Log.e(mTAG, "Path = null")
+                }
+            } else { //sign multi
+                //Sign multi
                 progressBar!!.visibility = View.VISIBLE
-                val ftpUtils = FTPUtils(signContext as Context,Constants.FtpInfo.IP_ADDRESS, Constants.FtpInfo.PORT, Constants.FtpInfo.SHIPMENT_USER, Constants.FtpInfo.SHIPMENT_PASSWORD, uploadSignName, path)
-                val coroutineFtp = Presenter(ftpUtils)
-                coroutineFtp.execute()
-                //val ftpTask = FtpTask()
-                //ftpTask.execute(ftpUtils)
-            } else {
-                Log.e(mTAG, "Path = null")
+
+                Log.e(mTAG, "sign multi, signatureMultiSignList.size = ${signatureMultiSignList.size}")
+
+                if (signState == SignState.INITIAL) { //SignState.INITIAL, then upload driver
+                    Log.e(mTAG, "SignState.INITIAL")
+                    signatureMultiSignListDriver.clear()
+                    for (item in signatureMultiSignList) {
+                        signatureMultiSignListDriver.add(item)
+                    }
+
+                    val uploadStartIntent = Intent()
+                    uploadStartIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_START
+                    signContext!!.sendBroadcast(uploadStartIntent)
+                } else if (signState == SignState.DRIVER_UPLOADED) { //SignState.DRIVER_UPLOADED, then upload guard
+                    Log.e(mTAG, "SignState.DRIVER_UPLOADED")
+                    signatureMultiSignListGuard.clear()
+                    for (item in signatureMultiSignList) {
+                        signatureMultiSignListGuard.add(item)
+                    }
+
+                    val uploadStartIntent = Intent()
+                    uploadStartIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_START
+                    signContext!!.sendBroadcast(uploadStartIntent)
+                }
+
+                /*for (i in 0..signatureMultiSignList.size) {
+                    var uploadSignName = ""
+                    if (signState == SignState.INITIAL) { //SignState.INITIAL, then upload driver
+                        uploadSignName = signatureMultiSignList[i].getShipmentNo() + "1.jpg"
+                        uploadSignNameDriver = signatureMultiSignList[i].getShipmentNo()  + "1.jpg"
+                    } else if (signState == SignState.DRIVER_UPLOADED) { //SignState.DRIVER_UPLOADED, then upload guard
+                        uploadSignName = signatureMultiSignList[i].getShipmentNo() + "2.jpg"
+                        uploadSignNameGuard = signatureMultiSignList[i].getShipmentNo()  + "2.jpg"
+                    }
+                }*/
+
             }
 
 
@@ -788,6 +1242,54 @@ class SignActivity : AppCompatActivity() {
         alertDialogBuilder.show()
 
 
+    }
+
+    private fun uploadMulti(shipmentNo: String) {
+        val scaledWidth = 320.0 //stick height to 512
+        //val scaledHeight = 512.0 //stick height to 512
+        val aspectRatio = scaledWidth / paintBoard!!.width
+
+        val scaledHeight = paintBoard!!.height * aspectRatio
+
+        Log.d(
+            mTAG,
+            "scaledWidth = $scaledWidth, aspectRatio = $aspectRatio, scaledHeight = $scaledHeight"
+        )
+
+        val scaledImage = Bitmap.createScaledBitmap(
+            paintBoard!!.bitmap,
+            scaledWidth.toInt(),
+            scaledHeight.toInt(),
+            false
+        )
+
+        var uploadSignName = ""
+        if (signState == SignState.INITIAL) { //SignState.INITIAL, then upload driver
+            uploadSignName = shipmentNo + "1.jpg"
+        } else if (signState == SignState.DRIVER_UPLOADED) { //SignState.DRIVER_UPLOADED, then upload guard
+            uploadSignName = shipmentNo + "2.jpg"
+        }
+
+        val path = saveBitmap(this@SignActivity as Context, scaledImage, uploadSignName)
+
+        if (path != "") {
+            progressBar!!.visibility = View.VISIBLE
+            val ftpUtils = FTPUtils(
+                signContext as Context,
+                Constants.FtpInfo.IP_ADDRESS,
+                Constants.FtpInfo.PORT,
+                Constants.FtpInfo.SHIPMENT_USER,
+                Constants.FtpInfo.SHIPMENT_PASSWORD,
+                uploadSignName,
+                path
+            )
+            val coroutineFtp = Presenter(ftpUtils)
+            coroutineFtp.execute()
+            //val ftpTask = FtpTask()
+            //ftpTask.execute(ftpUtils)
+        } else {
+            Log.e(mTAG, "Path = null")
+        }
     }
 
     private fun toast(message: String) {
@@ -900,15 +1402,29 @@ class SignActivity : AppCompatActivity() {
 
             if (isUploadSuccess) {
 
-                if (signState == SignState.INITIAL) {
-                    val outsourcedCompleteIntent = Intent()
-                    outsourcedCompleteIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_UPLOAD_COMPLETE
-                    ftpUtils!!.mContext!!.sendBroadcast(outsourcedCompleteIntent)
-                } else if (signState == SignState.DRIVER_UPLOADED) {
-                    val outsourcedCompleteIntent = Intent()
-                    outsourcedCompleteIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_UPLOAD_COMPLETE
-                    ftpUtils!!.mContext!!.sendBroadcast(outsourcedCompleteIntent)
+                if (!isSignMulti) {
+                    if (signState == SignState.INITIAL) {
+                        val outsourcedCompleteIntent = Intent()
+                        outsourcedCompleteIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_FTP_UPLOAD_COMPLETE
+                        ftpUtils!!.mContext!!.sendBroadcast(outsourcedCompleteIntent)
+                    } else if (signState == SignState.DRIVER_UPLOADED) {
+                        val outsourcedCompleteIntent = Intent()
+                        outsourcedCompleteIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_FTP_UPLOAD_COMPLETE
+                        ftpUtils!!.mContext!!.sendBroadcast(outsourcedCompleteIntent)
+                    }
+                } else {
+                    if (signState == SignState.INITIAL) {
+                        val outsourcedCompleteIntent = Intent()
+                        outsourcedCompleteIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_COMPLETE
+                        ftpUtils!!.mContext!!.sendBroadcast(outsourcedCompleteIntent)
+                    } else if (signState == SignState.DRIVER_UPLOADED) {
+                        val outsourcedCompleteIntent = Intent()
+                        outsourcedCompleteIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_COMPLETE
+                        ftpUtils!!.mContext!!.sendBroadcast(outsourcedCompleteIntent)
+                    }
                 }
+
+
 
 
             }

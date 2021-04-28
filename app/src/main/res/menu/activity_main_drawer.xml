@@ -26,6 +26,12 @@
             android:visible="true"/>
 
         <item
+            android:id="@+id/nav_setting"
+            android:icon="@drawable/baseline_settings_black_48"
+            android:title="@string/nav_setting"
+            android:visible="true"/>
+
+        <item
             android:id="@+id/nav_about"
             android:icon="@drawable/baseline_info_black_48"
             android:title="@string/nav_about"

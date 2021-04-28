@@ -16,8 +16,10 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.magtonic.magtoniccargoinout.MainActivity
+import com.magtonic.magtoniccargoinout.MainActivity.Companion.currentDate
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.isShipmentSignatureInDetail
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.signatureDetailList
+import com.magtonic.magtoniccargoinout.MainActivity.Companion.signatureMultiSignList
 import com.magtonic.magtoniccargoinout.R
 import com.magtonic.magtoniccargoinout.SignActivity
 import com.magtonic.magtoniccargoinout.data.HistoryAdapter
@@ -77,6 +79,8 @@ class ShipmentSignatureFragment : Fragment() {
 
         Log.d(mTAG, "onCreateView")
 
+        signatureMultiSignList.clear()
+
         val view = inflater.inflate(R.layout.fragment_shipment_signature, container, false)
 
         relativeLayout = view.findViewById(R.id.shipment_signature_container)
@@ -98,7 +102,7 @@ class ShipmentSignatureFragment : Fragment() {
         textViewDate = view.findViewById(R.id.textViewDateShipmentSignature)
 
         //set today
-        val currentDate: String = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(
+        currentDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(
             Date()
         )
 
@@ -123,7 +127,7 @@ class ShipmentSignatureFragment : Fragment() {
                     Log.e(mTAG, "date  = $date")
                     textViewDate!!.text = date
 
-                    progressBar!!.visibility = View.VISIBLE
+                    /*progressBar!!.visibility = View.VISIBLE
                     linearLayoutShipmentSignatureHeader!!.visibility = View.INVISIBLE
                     leftArrow!!.visibility = View.GONE
                     shipmentSignatureHeader!!.visibility = View.VISIBLE
@@ -146,7 +150,7 @@ class ShipmentSignatureFragment : Fragment() {
                         searchIntent.putExtra("INPUT_NO", "")
                     }
 
-                    shipmentSignatureContext?.sendBroadcast(searchIntent)
+                    shipmentSignatureContext?.sendBroadcast(searchIntent)*/
                 }
             }, year, month, day).show()
         }
@@ -337,6 +341,28 @@ class ShipmentSignatureFragment : Fragment() {
 
 
 
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SCAN_BARCODE, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_SCAN_BARCODE")
+
+                        progressBar!!.visibility = View.VISIBLE
+                        linearLayoutShipmentSignatureHeader!!.visibility = View.INVISIBLE
+                        listViewShipmentSignature!!.visibility = View.VISIBLE
+                        listViewShipmentSignatureDetail!!.visibility = View.GONE
+                        leftArrow!!.visibility = View.GONE
+                        shipmentSignatureHeader!!.visibility = View.VISIBLE
+                        shipmentSignatureContent!!.visibility = View.VISIBLE
+                        shipmentSignatureShipmentNo!!.visibility = View.GONE
+                        viewLine!!.visibility = View.GONE
+
+                        shipmentSignatureList.clear()
+                        if (shipmentSignatureItemAdapter != null) {
+                            shipmentSignatureItemAdapter!!.notifyDataSetChanged()
+                        }
+
+                        poBarcode = intent.getStringExtra("BARCODE") as String
+
+                        barcodeInput!!.setText(poBarcode)
+
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_FAILED, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_FAILED")
 
@@ -372,6 +398,9 @@ class ShipmentSignatureFragment : Fragment() {
                         if (shipmentSignatureItemAdapter != null) {
                             shipmentSignatureItemAdapter?.notifyDataSetChanged()
                         }
+
+                        currentSendOrder = shipmentSignatureList[0].getShipmentNo() as String
+                        Log.e(mTAG, "currentSendOrder = $currentSendOrder")
 
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SEARCH_DETAIL_FAILED, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_SEARCH_DETAIL_FAILED")
@@ -469,6 +498,41 @@ class ShipmentSignatureFragment : Fragment() {
                         val hideIntent = Intent()
                         hideIntent.action = Constants.ACTION.ACTION_OUTSOURCED_PROCESS_HIDE_FAB_BACK
                         outsourcedProcessContext!!.sendBroadcast(hideIntent)*/
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_ACTION, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_ACTION")
+
+                        if (currentSendOrder.isNotEmpty()) {
+                            var found = false
+
+                            for (shipmentNo in signatureMultiSignList) {
+                                if (shipmentNo.getShipmentNo() == currentSendOrder) {
+                                    found = true
+                                    break
+                                }
+                            }
+
+                            if (!found) {
+                                val shipmentSignatureMultiItem = ShipmentSignatureMultiItem(currentSendOrder)
+                                signatureMultiSignList.add(shipmentSignatureMultiItem)
+
+                                val addIntent = Intent()
+                                addIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_SUCCESS
+                                shipmentSignatureContext!!.sendBroadcast(addIntent)
+                            } else {
+                                val existIntent = Intent()
+                                existIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_EXIST
+                                shipmentSignatureContext!!.sendBroadcast(existIntent)
+                            }
+                        } else {
+                            Log.e(mTAG, "Please scan first")
+                        }
+                    } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_SIGN_CONFIRM_COMPLETE, ignoreCase = true)) {
+                        Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_MULTI_SIGN_CONFIRM_COMPLETE")
+
+                        shipmentSignatureList.clear()
+                        if (shipmentSignatureItemAdapter != null) {
+                            shipmentSignatureItemAdapter?.notifyDataSetChanged()
+                        }
                     }
 
                 }
@@ -481,6 +545,7 @@ class ShipmentSignatureFragment : Fragment() {
             filter.addAction(Constants.ACTION.ACTION_NETWORK_FAILED)
             filter.addAction(Constants.ACTION.ACTION_CONNECTION_TIMEOUT)
             filter.addAction(Constants.ACTION.ACTION_SERVER_ERROR)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SCAN_BARCODE)
             filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_FAILED)
             filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_FRAGMENT_REFRESH)
             filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SEARCH_DETAIL_FAILED)
@@ -490,6 +555,10 @@ class ShipmentSignatureFragment : Fragment() {
 
             filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SHOW_SIGN_DIALOG_ACTION)
             filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_SUCCESS)
+            //multi
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_ACTION)
+            filter.addAction(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_MULTI_SIGN_CONFIRM_COMPLETE)
+
             shipmentSignatureContext?.registerReceiver(mReceiver, filter)
             isRegister = true
             Log.d(mTAG, "registerReceiver mReceiver")

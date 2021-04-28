@@ -75,6 +75,7 @@ class Constants {
             const val ACTION_SHIPMENT_FRAGMENT_NOT_COMPLETE_BIKE : String ="com.magtonic.MagtonicCargoInOut.ShipmentFragmentNotCompleteBike"
 
             //signature
+            const val ACTION_SHIPMENT_SIGNATURE_SCAN_BARCODE : String = "com.magtonic.MagtonicCargoInOut.ShipmentSignatureScanBarcode"
             const val ACTION_SHIPMENT_SIGNATURE_LIST_CLEAR : String = "com.magtonic.MagtonicCargoInOut.ShipmentSignatureListClear"
             const val ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_ACTION : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureSearchNoAction"
             const val ACTION_SHIPMENT_SIGNATURE_SEARCH_NO_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureSearchNoFailed"
@@ -115,6 +116,49 @@ class Constants {
             const val ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_ACTION : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardSignConfirmAction"
             const val ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardSignConfirmFailed"
             const val ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureGuardSignConfirmSuccess"
+
+            const val ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_ACTION : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureAddShipmentNoToMultiAction"
+            const val ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureAddShipmentNoToMultiSuccess"
+            const val ACTION_SHIPMENT_SIGNATURE_ADD_SHIPMENT_NO_TO_MULTI_EXIST : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureAddShipmentNoToMultiExist"
+            //multi sign
+            const val ACTION_SHIPMENT_SIGNATURE_SHOW_SIGN_MULTI_LIST : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureShowSignMultiList"
+
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_START : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverFtpUploadFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_TIMEOUT : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverFtpConnectTimeout"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_UNKNOWN_HOST : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverFTPConnectUnknownHost"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverFtpConnectFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_CONNECT_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverFTPConnectSuccess"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverFtpUploadFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverFtpUploadSuccess"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_COMPLETE : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverFTPUploadComplete"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_FTP_UPLOAD_ALL_COMPLETE : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverFTPUploadAllComplete"
+
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_START : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverSignConfirmStart"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_ACTION : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverSignConfirmAction"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverSignConfirmFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_DRIVER_SIGN_CONFIRM_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiDriverSignConfirmSuccess"
+
+
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_START : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardFtpUploadFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_TIMEOUT : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardFtpConnectTimeout"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_UNKNOWN_HOST : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardFTPConnectUnknownHost"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardFtpConnectFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_CONNECT_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardFTPConnectSuccess"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardFtpUploadFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardFtpUploadSuccess"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_COMPLETE : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardFTPUploadComplete"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_FTP_UPLOAD_ALL_COMPLETE : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardFTPUploadAllComplete"
+
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_START : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardSignConfirmStart"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_ACTION : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardSignConfirmAction"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_FAILED : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardSignConfirmFailed"
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_GUARD_SIGN_CONFIRM_SUCCESS : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiGuardSignConfirmSuccess"
+
+            const val ACTION_SHIPMENT_SIGNATURE_MULTI_SIGN_CONFIRM_COMPLETE : String ="com.magtonic.MagtonicCargoInOut.ShipmentSignatureMultiSignConfirmComplete"
+
+            //ip setting
+            const val ACTION_WEBSERVICE_FTP_IP_ADDRESS_UPDATE_ACTION : String ="com.magtonic.MagtonicCargoInOut.WebserviceFtpIpAddressUpdateAction"
+            const val ACTION_WEBSERVICE_FTP_IP_ADDRESS_SHOW_PASSWORD_DIALOG : String ="com.magtonic.MagtonicCargoInOut.WebserviceFtpIpAddressShowPasswordDialog"
         }
 
     }
