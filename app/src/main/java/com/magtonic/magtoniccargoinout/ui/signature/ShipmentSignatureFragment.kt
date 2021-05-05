@@ -22,8 +22,6 @@ import com.magtonic.magtoniccargoinout.MainActivity.Companion.signatureDetailLis
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.signatureMultiSignList
 import com.magtonic.magtoniccargoinout.R
 import com.magtonic.magtoniccargoinout.SignActivity
-import com.magtonic.magtoniccargoinout.data.HistoryAdapter
-import com.magtonic.magtoniccargoinout.persistence.History
 import com.magtonic.magtoniccargoinout.ui.data.*
 
 import java.text.SimpleDateFormat
@@ -60,7 +58,7 @@ class ShipmentSignatureFragment : Fragment() {
     private var signatureDetailItemAdapter: SignatureDetailItemAdapter? = null
 
     private var poBarcode: String = ""
-    private var poLine: String = ""
+    //private var poLine: String = ""
 
     private var currentSelectShipmentNo: Int = -1
     private var currentSendOrder: String = ""
@@ -117,13 +115,13 @@ class ShipmentSignatureFragment : Fragment() {
 
 
 
-            DatePickerDialog(shipmentSignatureContext as Context, { _, year, month, day ->
+            DatePickerDialog(shipmentSignatureContext as Context, { _, pickYear, pickMonth, pickDay ->
                 run {
                     //val format = "你設定的日期為:${setDateFormat(year, month, day)}"
 
                     //Log.e(mTAG, "format  = $format")
                     //date_text.text = format
-                    val date = setDateFormat(year, month, day)
+                    val date = setDateFormat(pickYear, pickMonth, pickDay)
                     Log.e(mTAG, "date  = $date")
                     textViewDate!!.text = date
 
@@ -150,9 +148,11 @@ class ShipmentSignatureFragment : Fragment() {
                         searchIntent.putExtra("INPUT_NO", "")
                     }
 
-                    shipmentSignatureContext?.sendBroadcast(searchIntent)*/
+                    shipmentSignatureContext?.sendBroadcast(searchIntent)
+                    */
                 }
             }, year, month, day).show()
+
         }
         barcodeInput = view.findViewById(R.id.editTextShipmentSignatureNo)
         linearLayoutShipmentSignatureHeader = view.findViewById(R.id.linearLayoutShipmentSignatureHeader)
@@ -474,9 +474,9 @@ class ShipmentSignatureFragment : Fragment() {
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_SUCCESS, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_UPLOAD_SUCCESS")
 
-                        val sendOrder = intent.getStringExtra("SEND_ORDER")
+                        /*val sendOrder = intent.getStringExtra("SEND_ORDER")
 
-                        /*toast(getString(R.string.outsourced_process_sign_confirm, sendOrder))
+                        toast(getString(R.string.outsourced_process_sign_confirm, sendOrder))
 
                         Log.d(mTAG, "sendOrder = $sendOrder")
 

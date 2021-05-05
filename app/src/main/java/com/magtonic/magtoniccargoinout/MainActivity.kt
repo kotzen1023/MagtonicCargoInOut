@@ -207,7 +207,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var barcode: ScanBarcode? = null
 
     private var navView: NavigationView? = null
-
+    var textViewUserName: TextView? = null
     private var toastHandle: Toast? = null
 
     private var isBarcodeScanning: Boolean = false
@@ -237,15 +237,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Log.d(mTAG, "onCreate")
 
         val displayMetrics = DisplayMetrics()
+
+        //
+        //mContext!!.display!!.getMetrics(displayMetrics)
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M)
         {
             windowManager.defaultDisplay.getMetrics(displayMetrics)
-        } else {
+
+            screenHeight = displayMetrics.heightPixels
+            screenWidth = displayMetrics.widthPixels
+        } else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            mContext!!.display!!.getRealMetrics(displayMetrics)
+
+            screenHeight = displayMetrics.heightPixels
+            screenWidth = displayMetrics.widthPixels
+        } else { //Android 11
             //mContext!!.display!!.getMetrics(displayMetrics)
-            this@MainActivity.display!!.getRealMetrics(displayMetrics)
+            screenHeight = windowManager.currentWindowMetrics.bounds.height()
+            screenWidth = windowManager.currentWindowMetrics.bounds.width()
+
         }
-        screenHeight = displayMetrics.heightPixels
-        screenWidth = displayMetrics.widthPixels
 
         Log.e(mTAG, "width = $screenWidth, height = $screenHeight")
 
@@ -286,7 +297,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navView = findViewById(R.id.nav_view)
         Log.e(mTAG, "navView header: "+navView!!.headerCount)
         val header = navView!!.inflateHeaderView(R.layout.nav_header_main)
-        //textViewUserName = header.findViewById(R.id.textViewUserName)
+        textViewUserName = header.findViewById(R.id.textViewUserName)
         Log.e(mTAG, "navView header: "+navView!!.headerCount)
         navView!!.removeHeaderView(navView!!.getHeaderView(0))
 
@@ -730,11 +741,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_SHOW_SIGN_MULTI_LIST, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_SHIPMENT_SIGNATURE_SHOW_SIGN_MULTI_LIST")
 
-                        val intent = Intent(mContext, SignMultiActivity::class.java)
+                        val showIntent = Intent(mContext, SignMultiActivity::class.java)
                         //intent.putExtra("SEND_ORDER", currentSendOrder)
                         //intent.putExtra("TITLE", getString(R.string.nav_signature))
                         //intent.putExtra("SEND_FRAGMENT", "SHIPMENT_SIGNATURE_FRAGMENT")
-                        startActivity(intent)
+                        startActivity(showIntent)
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_WEBSERVICE_FTP_IP_ADDRESS_UPDATE_ACTION, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_WEBSERVICE_FTP_IP_ADDRESS_UPDATE_ACTION")
 
@@ -2637,8 +2648,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val btnConfirm = promptView.findViewById<Button>(R.id.btnDialogConfirm)
 
         textViewMsg.text = getString(R.string.version_string, BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
-        var msg = "1. 新增每隔1分鐘自動同步\n"
-        msg += "2. 新增出貨檢查功能"
+        var msg = "[20210503] 新增出貨簽名功能\n"
         //msg += "3. 新增\"設定\"讓使用者決定手動或自動確認"
         textViewFixMsg.text = msg
 
@@ -2672,7 +2682,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         alertDialogBuilder.setView(promptView)
 
         //final EditText editFileName = (EditText) promptView.findViewById(R.id.editFileName);
-        val textViewSupplierDialog = promptView.findViewById<TextView>(R.id.textViewSettingDialog)
+        //val textViewSupplierDialog = promptView.findViewById<TextView>(R.id.textViewSettingDialog)
 
         //textViewSupplierDialog.setText(R.string.supplexier_enter_password)
 

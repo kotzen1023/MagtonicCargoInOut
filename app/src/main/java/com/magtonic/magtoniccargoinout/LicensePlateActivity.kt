@@ -7,6 +7,7 @@ import android.content.*
 import android.graphics.drawable.BitmapDrawable
 
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 
@@ -20,6 +21,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.text.HtmlCompat
 //import com.google.firebase.ml.vision.FirebaseVision
 //import com.google.firebase.ml.vision.common.FirebaseVisionImage
 //import com.google.firebase.ml.vision.text.FirebaseVisionText
@@ -296,8 +298,8 @@ class LicensePlateActivity : AppCompatActivity() {
 
             textViewLicensePlate.text = ""
 
-            val bitmap = (imageViewLicensePlate.drawable as BitmapDrawable).bitmap
-            /*val image = FirebaseVisionImage.fromBitmap(bitmap)
+            /*val bitmap = (imageViewLicensePlate.drawable as BitmapDrawable).bitmap
+            val image = FirebaseVisionImage.fromBitmap(bitmap)
             val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
 
             detector.processImage(image)
@@ -317,8 +319,8 @@ class LicensePlateActivity : AppCompatActivity() {
             if (imageViewLicensePlate.drawable != null) {
                 textViewLicensePlate.text = ""
 
-                val bitmap = (imageViewLicensePlate.drawable as BitmapDrawable).bitmap
-                /*val image = FirebaseVisionImage.fromBitmap(bitmap)
+                /*val bitmap = (imageViewLicensePlate.drawable as BitmapDrawable).bitmap
+                val image = FirebaseVisionImage.fromBitmap(bitmap)
                 val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
 
                 detector.processImage(image)
@@ -389,14 +391,18 @@ class LicensePlateActivity : AppCompatActivity() {
         if (toastHandle != null)
             toastHandle!!.cancel()
 
-        val toast = Toast.makeText(ocrContext, message, Toast.LENGTH_SHORT)
-        toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL, 0, 0)
-        val group = toast.view as ViewGroup
-        val textView = group.getChildAt(0) as TextView
-        textView.textSize = 30.0f
-        toast.show()
+        toastHandle = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            val toast = Toast.makeText(this, HtmlCompat.fromHtml("<h1>$message</h1>", HtmlCompat.FROM_HTML_MODE_COMPACT), Toast.LENGTH_SHORT)
+            toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL, 0, 0)
+            toast.show()
 
-        toastHandle = toast
+            toast
+        } else { //Android 11
+            val toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
+            toast.show()
+
+            toast
+        }
     }
 
 

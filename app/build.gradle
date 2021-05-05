@@ -3,6 +3,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 //apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 
 apply plugin: 'com.google.gms.google-services'
 
@@ -14,7 +15,7 @@ android {
     defaultConfig {
         applicationId "com.magtonic.magtoniccargoinout"
         versionCode 1
-        versionName "1.1"
+        versionName "1.2"
         //minSdkVersion 21
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion

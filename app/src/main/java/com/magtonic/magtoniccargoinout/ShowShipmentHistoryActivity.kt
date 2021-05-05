@@ -63,13 +63,13 @@ class ShowShipmentHistoryActivity : AppCompatActivity() {
                 historyAdapter = null
             }
 
-            DatePickerDialog(this, { _, year, month, day ->
+            DatePickerDialog(this, { _, pickYear, pickMonth, pickDay ->
                 run {
                     //val format = "你設定的日期為:${setDateFormat(year, month, day)}"
 
                     //Log.e(mTAG, "format  = $format")
                     //date_text.text = format
-                    val date = setDateFormat(year, month, day)
+                    val date = setDateFormat(pickYear, pickMonth, pickDay)
                     Log.e(mTAG, "date  = $date")
                     textViewDate!!.text = date
 

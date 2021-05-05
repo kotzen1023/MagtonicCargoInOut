@@ -7,9 +7,9 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
+
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -17,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 
 import com.magtonic.magtoniccargoinout.MainActivity
@@ -56,7 +57,7 @@ class HomeFragment : Fragment() {
     private var poBarcode: String = ""
     private var poLine: String = ""
 
-    private var guestContext: Context? = null
+    private var homeContext: Context? = null
     //private lateinit var homeViewModel: HomeViewModel
 
     /*companion object {
@@ -80,7 +81,7 @@ class HomeFragment : Fragment() {
 
                     val getIntent = Intent()
                     getIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_LIST_ACTION
-                    guestContext!!.sendBroadcast(getIntent)
+                    homeContext!!.sendBroadcast(getIntent)
 
                 } else {
                     System.currentTimeMillis() - mLastActionTime
@@ -129,7 +130,7 @@ class HomeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        guestContext = context
+        homeContext = context
 
 
 
@@ -139,7 +140,7 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         Log.d(mTAG, "onCreateView")
 
@@ -147,7 +148,7 @@ class HomeFragment : Fragment() {
 
         relativeLayout = view.findViewById(R.id.guest_list_container)
         linearLayout = view.findViewById(R.id.linearLayoutGuest)
-        progressBar = ProgressBar(guestContext, null, android.R.attr.progressBarStyleLarge)
+        progressBar = ProgressBar(homeContext, null, android.R.attr.progressBarStyleLarge)
         val params = RelativeLayout.LayoutParams(MainActivity.screenHeight / 4, MainActivity.screenWidth / 4)
         params.addRule(RelativeLayout.CENTER_IN_PARENT)
 
@@ -191,12 +192,12 @@ class HomeFragment : Fragment() {
 
                 val getIntent = Intent()
                 getIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_LIST_ACTION
-                guestContext!!.sendBroadcast(getIntent)
+                homeContext!!.sendBroadcast(getIntent)
 
                 /*val getIntent = Intent()
                 getIntent.action = Constants.ACTION.ACTION_GUEST_GET_CURRENT_PLANT_GUEST_LIST
                 getIntent.putExtra("PLANT", currentPlant)
-                guestContext!!.sendBroadcast(getIntent)*/
+                homeContext!!.sendBroadcast(getIntent)*/
             }
 
         }
@@ -205,7 +206,7 @@ class HomeFragment : Fragment() {
         factoryList.add("A廠")
         factoryList.add("B廠")
 
-        val factoryAdapter = ArrayAdapter(guestContext as Context, R.layout.myspinner, factoryList)
+        val factoryAdapter = ArrayAdapter(homeContext as Context, R.layout.myspinner, factoryList)
         spinner.adapter = factoryAdapter
 
         when(currentPlant) {
@@ -220,10 +221,10 @@ class HomeFragment : Fragment() {
 
         }
 
-        if (guestContext != null) {
+        if (homeContext != null) {
 
 
-            guestDetailItemAdapter = GuestDetailItemAdapter(guestContext, R.layout.fragment_guest_item, guestDetailList)
+            guestDetailItemAdapter = GuestDetailItemAdapter(homeContext, R.layout.fragment_guest_item, guestDetailList)
             //listView.setAdapter(receiptDetailItemAdapter)
             listView!!.adapter = guestDetailItemAdapter
         }
@@ -244,7 +245,7 @@ class HomeFragment : Fragment() {
 
                     val hideIntent = Intent()
                     hideIntent.action = Constants.ACTION.ACTION_HIDE_KEYBOARD
-                    guestContext?.sendBroadcast(hideIntent)
+                    homeContext?.sendBroadcast(hideIntent)
 
                     /*val guest = findGuestInAllList(barcodeInput!!.text.toString())
 
@@ -280,7 +281,7 @@ class HomeFragment : Fragment() {
 
                     val hideIntent = Intent()
                     hideIntent.action = Constants.ACTION.ACTION_HIDE_KEYBOARD
-                    guestContext?.sendBroadcast(hideIntent)
+                    homeContext?.sendBroadcast(hideIntent)
 
                     /*val guest = findGuestInAllList(barcodeInput!!.text.toString())
 
@@ -302,7 +303,7 @@ class HomeFragment : Fragment() {
                     searchIntent.action = Constants.ACTION.ACTION_USER_INPUT_SEARCH
                     searchIntent.putExtra("INPUT_NO", barcodeInput!!.text.toString().toUpperCase(
                         Locale.getDefault()))
-                    guestContext?.sendBroadcast(searchIntent)*/
+                    homeContext?.sendBroadcast(searchIntent)*/
 
                     true
                 }
@@ -382,7 +383,7 @@ class HomeFragment : Fragment() {
                         if (MainActivity.isKeyBoardShow) {
                             val hideIntent = Intent()
                             hideIntent.action = Constants.ACTION.ACTION_HIDE_KEYBOARD
-                            guestContext!!.sendBroadcast(hideIntent)
+                            homeContext!!.sendBroadcast(hideIntent)
                         }
 
                         when(currentPlant) {
@@ -433,7 +434,7 @@ class HomeFragment : Fragment() {
                         if (MainActivity.isKeyBoardShow) {
                             val hideIntent = Intent()
                             hideIntent.action = Constants.ACTION.ACTION_HIDE_KEYBOARD
-                            guestContext!!.sendBroadcast(hideIntent)
+                            homeContext!!.sendBroadcast(hideIntent)
                         }
 
                         if (guestDetailItemAdapter != null) {
@@ -452,7 +453,7 @@ class HomeFragment : Fragment() {
 
                         val getIntent = Intent()
                         getIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_LIST_ACTION
-                        guestContext!!.sendBroadcast(getIntent)
+                        homeContext!!.sendBroadcast(getIntent)
 
                     } else if (intent.action!!.equals(Constants.ACTION.ACTION_GUEST_SHOW_LEAVE_ACTION, ignoreCase = true)) {
                         Log.d(mTAG, "ACTION_GUEST_SHOW_LEAVE_ACTION")
@@ -473,7 +474,7 @@ class HomeFragment : Fragment() {
                         if (MainActivity.isKeyBoardShow) {
                             val hideIntent = Intent()
                             hideIntent.action = Constants.ACTION.ACTION_HIDE_KEYBOARD
-                            guestContext!!.sendBroadcast(hideIntent)
+                            homeContext!!.sendBroadcast(hideIntent)
                         }
 
 
@@ -495,7 +496,7 @@ class HomeFragment : Fragment() {
                         guestInIntent.putExtra("DATA4", poBarcode) //採購單號
                         guestInIntent.putExtra("DATA5", poLine) //項次
                         guestInIntent.putExtra("DATA6", "") //刷進留空
-                        guestContext!!.sendBroadcast(guestInIntent)
+                        homeContext!!.sendBroadcast(guestInIntent)
 
                         /*if (guest.data1.isNotEmpty() && guest.data2.isNotEmpty()) {
                             showGuestInDialog(false, MainActivity.itemReceipt!!.rjReceipt!!.pmm09, guest.data1)
@@ -538,7 +539,7 @@ class HomeFragment : Fragment() {
             filter.addAction(Constants.ACTION.ACTION_RECEIPT_UNKNOWN_BARCODE_LENGTH)
 
             //filter.addAction(Constants.ACTION.ACTION_RECEIPT_ALREADY_UPLOADED_SEND_TO_FRAGMENT)
-            guestContext?.registerReceiver(mReceiver, filter)
+            homeContext?.registerReceiver(mReceiver, filter)
             isRegister = true
             Log.d(mTAG, "registerReceiver mReceiver")
         }
@@ -546,12 +547,12 @@ class HomeFragment : Fragment() {
         /*val getIntent = Intent()
         getIntent.action = Constants.ACTION.ACTION_GUEST_GET_CURRENT_PLANT_GUEST_LIST
         getIntent.putExtra("PLANT", currentPlant)
-        guestContext!!.sendBroadcast(getIntent)*/
+        homeContext!!.sendBroadcast(getIntent)*/
 
         //mLastActionTime = System.currentTimeMillis()
         val startTimerIntent = Intent()
         startTimerIntent.action = Constants.ACTION.ACTION_GUEST_START_TIMER
-        guestContext!!.sendBroadcast(startTimerIntent)
+        homeContext!!.sendBroadcast(startTimerIntent)
 
         return view
     }
@@ -563,7 +564,7 @@ class HomeFragment : Fragment() {
         //stopTimer()
         val stopTimerIntent = Intent()
         stopTimerIntent.action = Constants.ACTION.ACTION_GUEST_STOP_TIMER
-        guestContext!!.sendBroadcast(stopTimerIntent)
+        homeContext!!.sendBroadcast(stopTimerIntent)
 
         super.onDestroy()
     }
@@ -573,7 +574,7 @@ class HomeFragment : Fragment() {
 
         if (isRegister && mReceiver != null) {
             try {
-                guestContext!!.unregisterReceiver(mReceiver)
+                homeContext!!.unregisterReceiver(mReceiver)
             } catch (e: IllegalArgumentException) {
                 e.printStackTrace()
             }
@@ -600,14 +601,18 @@ class HomeFragment : Fragment() {
         if (toastHandle != null)
             toastHandle!!.cancel()
 
-        val toast = Toast.makeText(guestContext, message, Toast.LENGTH_SHORT)
-        toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL, 0, 0)
-        val group = toast.view as ViewGroup
-        val textView = group.getChildAt(0) as TextView
-        textView.textSize = 30.0f
-        toast.show()
+        toastHandle = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            val toast = Toast.makeText(homeContext, HtmlCompat.fromHtml("<h1>$message</h1>", HtmlCompat.FROM_HTML_MODE_COMPACT), Toast.LENGTH_SHORT)
+            toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL, 0, 0)
+            toast.show()
 
-        toastHandle = toast
+            toast
+        } else { //Android 11
+            val toast = Toast.makeText(homeContext, message, Toast.LENGTH_SHORT)
+            toast.show()
+
+            toast
+        }
     }
 
     private fun showGuestInDialog(plant: String, guestNo: String, inDate: String, inTime: String) {
@@ -619,9 +624,9 @@ class HomeFragment : Fragment() {
         // get prompts.xml view
         /*LayoutInflater layoutInflater = LayoutInflater.from(Nfc_read_app.this);
         View promptView = layoutInflater.inflate(R.layout.input_dialog, null);*/
-        val promptView = View.inflate(guestContext, R.layout.guest_in_or_out_dialog, null)
+        val promptView = View.inflate(homeContext, R.layout.guest_in_or_out_dialog, null)
 
-        val alertDialogBuilder = AlertDialog.Builder(guestContext).create()
+        val alertDialogBuilder = AlertDialog.Builder(homeContext).create()
         alertDialogBuilder.setView(promptView)
 
         //final EditText editFileName = (EditText) promptView.findViewById(R.id.editFileName);
@@ -635,7 +640,7 @@ class HomeFragment : Fragment() {
 
         textViewGuestDialog.text = getString(R.string.guest_in_title)
 
-        val factoryAdapter = ArrayAdapter(guestContext as Context, R.layout.myspinner, factoryList)
+        val factoryAdapter = ArrayAdapter(homeContext as Context, R.layout.myspinner, factoryList)
         spinnerGuestDialog.adapter = factoryAdapter
 
         var inPlant = currentPlant
@@ -711,7 +716,7 @@ class HomeFragment : Fragment() {
             guestInIntent.putExtra("DATA4", "") //pmn01
             guestInIntent.putExtra("DATA5", "") //pmn02
             guestInIntent.putExtra("DATA6", inDate) //plant
-            guestContext!!.sendBroadcast(guestInIntent)
+            homeContext!!.sendBroadcast(guestInIntent)
 
             alertDialogBuilder.dismiss()
         }

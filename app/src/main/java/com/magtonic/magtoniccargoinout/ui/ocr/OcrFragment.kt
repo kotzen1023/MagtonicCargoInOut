@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.os.Build
 
 import android.os.Bundle
 import android.provider.MediaStore
@@ -16,6 +17,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 //import com.google.firebase.ml.vision.FirebaseVision
 //import com.google.firebase.ml.vision.common.FirebaseVisionImage
@@ -74,8 +76,8 @@ class OcrFragment : Fragment() {
             if (imageView.drawable != null) {
                 editText.setText("")
                 btnRecognize.isEnabled = false
-                val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-                /*val image = FirebaseVisionImage.fromBitmap(bitmap)
+                /*val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+                val image = FirebaseVisionImage.fromBitmap(bitmap)
                 val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
 
                 detector.processImage(image)
@@ -125,22 +127,26 @@ class OcrFragment : Fragment() {
         if (toastHandle != null)
             toastHandle!!.cancel()
 
-        val toast = Toast.makeText(ocrContext, message, Toast.LENGTH_SHORT)
-        toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL, 0, 0)
-        val group = toast.view as ViewGroup
-        val textView = group.getChildAt(0) as TextView
-        textView.textSize = 30.0f
-        toast.show()
+        toastHandle = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            val toast = Toast.makeText(ocrContext, HtmlCompat.fromHtml("<h1>$message</h1>", HtmlCompat.FROM_HTML_MODE_COMPACT), Toast.LENGTH_SHORT)
+            toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL, 0, 0)
+            toast.show()
 
-        toastHandle = toast
+            toast
+        } else { //Android 11
+            val toast = Toast.makeText(ocrContext, message, Toast.LENGTH_SHORT)
+            toast.show()
+
+            toast
+        }
     }
 
-    fun selectImage(v: View) {
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1)
-    }
+    //fun selectImage(v: View) {
+    //    val intent = Intent()
+    //    intent.type = "image/*"
+    //    intent.action = Intent.ACTION_GET_CONTENT
+    //    startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1)
+    //}
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -156,8 +162,8 @@ class OcrFragment : Fragment() {
         if (imageView.drawable != null) {
             editText.setText("")
             v.isEnabled = false
-            val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-            /*val image = FirebaseVisionImage.fromBitmap(bitmap)
+            /*val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+            val image = FirebaseVisionImage.fromBitmap(bitmap)
             val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
 
             detector.processImage(image)
