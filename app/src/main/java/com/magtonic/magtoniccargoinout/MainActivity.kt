@@ -36,6 +36,7 @@ import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.BuildConfig
 import com.google.firebase.FirebaseApp
 import com.google.gson.Gson
 import com.magtonic.magtoniccargoinout.api.ApiFunc
@@ -91,6 +92,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private var menuItemKeyboard: MenuItem? = null
     private var menuItemShipmentHistory: MenuItem? = null
+
+    private var mContext: Context? = null
 
     @SuppressLint("StaticFieldLeak")
     companion object {
@@ -206,7 +209,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var barcode: ScanBarcode? = null
 
     private var navView: NavigationView? = null
-    var textViewUserName: TextView? = null
+    private var textViewUserName: TextView? = null
     private var toastHandle: Toast? = null
 
     private var isBarcodeScanning: Boolean = false
