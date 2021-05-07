@@ -62,7 +62,7 @@ class SignActivity : AppCompatActivity() {
     private var btnPrev: Button?=null
     private var btnSignConfirm: Button?=null
 
-    private val fileUtils: FileUtils?= FileUtils()
+    private val fileUtils: FileUtils = FileUtils()
     private var uploadSuccess: Boolean = false
 
     private var linearLayoutSignDetailList: LinearLayout?= null
@@ -168,14 +168,18 @@ class SignActivity : AppCompatActivity() {
                 confirmIntent.putExtra("SEND_ORDER", sendOrder)
                 when (sendFragment) {
                     "SHIPMENT_SIGNATURE_FRAGMENT" -> {
-                        if (signState == SignState.GUARD_UPLOADED) {
-                            confirmIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_ACTION
-                            confirmIntent.putExtra("SIGN_FILE_NAME", uploadSignNameDriver)
-                        } else if (signState == SignState.DRIVER_CONFIRM) {
-                            confirmIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_ACTION
-                            confirmIntent.putExtra("SIGN_FILE_NAME", uploadSignNameGuard)
-                        } else {
-                            Log.e(mTAG, "signState = $signState")
+                        when (signState) {
+                            SignState.GUARD_UPLOADED -> {
+                                confirmIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_DRIVER_SIGN_CONFIRM_ACTION
+                                confirmIntent.putExtra("SIGN_FILE_NAME", uploadSignNameDriver)
+                            }
+                            SignState.DRIVER_CONFIRM -> {
+                                confirmIntent.action = Constants.ACTION.ACTION_SHIPMENT_SIGNATURE_GUARD_SIGN_CONFIRM_ACTION
+                                confirmIntent.putExtra("SIGN_FILE_NAME", uploadSignNameGuard)
+                            }
+                            else -> {
+                                Log.e(mTAG, "signState = $signState")
+                            }
                         }
 
 
@@ -1005,7 +1009,7 @@ class SignActivity : AppCompatActivity() {
             signImageUriPath = uri
 
             Log.e(mTAG, "Uri = $uri")
-            path = getRealPathFromURI(context, uri) as String
+            path = getRealPathFromURI(context, uri)
 
 
             //val path2 = getRealPathFromURI2(context, uri)
@@ -1064,12 +1068,12 @@ class SignActivity : AppCompatActivity() {
     }
 
     private fun getRealPathFromURI(context: Context, contentUri: Uri?
-    ): String? {
+    ): String {
 
         var ret = ""
 
         if (contentUri != null) {
-            ret = fileUtils!!.getPath(context, contentUri).toString()
+            ret = fileUtils.getPath(context, contentUri).toString()
         }
         /*var cursor: Cursor? = null
         return try {
@@ -1138,11 +1142,6 @@ class SignActivity : AppCompatActivity() {
 
 
             if (!isSignMulti) {
-                /*val sdf = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
-            val currentDateAndTime: String = sdf.format(Date())
-            uploadSignName = "$currentDateAndTime.jpg"*/
-                //uploadSignName = "$sendOrder.jpg"
-
 
                 //saveBitmap(drawContext as Context, paintBoard!!.bitmap, CompressFormat.JPEG,"image/jpeg", fileName)
                 val scaledWidth = 320.0 //stick height to 512

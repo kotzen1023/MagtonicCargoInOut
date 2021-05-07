@@ -8,9 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.ImageView
+
 import android.widget.TextView
-import com.magtonic.magtoniccargoinout.LicensePlateActivity
+
 import com.magtonic.magtoniccargoinout.R
 import java.util.ArrayList
 
@@ -27,7 +27,7 @@ class GuestDetailItemAdapter(context: Context?, resource: Int, objects: ArrayLis
         return items.size
     }
 
-    override fun getItem(position: Int): GuestDetailItem? {
+    override fun getItem(position: Int): GuestDetailItem {
         return items[position]
     }
 

@@ -9,23 +9,23 @@ class ShipmentSignatureItem (shipmentNo: String, customerNo: String, orderNo: St
         return shipmentNo
     }
 
-    fun setShipmentNo(shipmentNo: String) {
-        this.shipmentNo = shipmentNo
-    }
+    //fun setShipmentNo(shipmentNo: String) {
+    //    this.shipmentNo = shipmentNo
+    //}
 
     fun getCustomerNo(): String? {
         return customerNo
     }
 
-    fun setCustomerNo(customerNo: String) {
-        this.customerNo = customerNo
-    }
+    //fun setCustomerNo(customerNo: String) {
+    //    this.customerNo = customerNo
+    //}
 
     fun getOrderNo(): String? {
         return orderNo
     }
 
-    fun setOrderNo(orderNo: String) {
-        this.orderNo = orderNo
-    }
+    //fun setOrderNo(orderNo: String) {
+    //    this.orderNo = orderNo
+    //}
 }

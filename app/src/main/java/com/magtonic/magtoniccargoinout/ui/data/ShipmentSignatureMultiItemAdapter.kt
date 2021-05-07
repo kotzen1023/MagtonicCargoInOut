@@ -11,18 +11,18 @@ import java.util.ArrayList
 
 class ShipmentSignatureMultiItemAdapter (context: Context?, resource: Int, objects: ArrayList<ShipmentSignatureMultiItem>)  :
     ArrayAdapter<ShipmentSignatureMultiItem>(context as Context, resource, objects) {
-    private val mTAG = ShipmentSignatureItemAdapter::class.java.name
+    //private val mTAG = ShipmentSignatureItemAdapter::class.java.name
     private val layoutResourceId: Int = resource
 
     private var inflater : LayoutInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private val items: ArrayList<ShipmentSignatureMultiItem> = objects
-    private val mContext = context
+    //private val mContext = context
 
     override fun getCount(): Int {
         return items.size
     }
 
-    override fun getItem(position: Int): ShipmentSignatureMultiItem? {
+    override fun getItem(position: Int): ShipmentSignatureMultiItem {
         return items[position]
     }
 

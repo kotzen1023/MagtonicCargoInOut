@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.*
 
-import android.graphics.drawable.BitmapDrawable
+
 
 import android.net.Uri
 import android.os.Build
@@ -15,7 +15,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
-import android.view.ViewGroup
+
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*

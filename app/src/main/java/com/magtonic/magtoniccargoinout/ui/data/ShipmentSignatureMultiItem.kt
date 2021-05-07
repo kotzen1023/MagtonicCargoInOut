@@ -6,7 +6,7 @@ class ShipmentSignatureMultiItem(shipmentNo: String) {
         return shipmentNo
     }
 
-    fun setShipmentNo(shipmentNo: String) {
-        this.shipmentNo = shipmentNo
-    }
+    //fun setShipmentNo(shipmentNo: String) {
+    //    this.shipmentNo = shipmentNo
+    //}
 }

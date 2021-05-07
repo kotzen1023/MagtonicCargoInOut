@@ -8,15 +8,15 @@ class ShipmentCheckItem (status: String, reason: String) {
         return status
     }
 
-    fun setStatus(status: String) {
-        this.status = status
-    }
+    //fun setStatus(status: String) {
+    //    this.status = status
+    //}
 
     fun getReason(): String? {
         return reason
     }
 
-    fun setReason(reason: String) {
-        this.reason = reason
-    }
+    //fun setReason(reason: String) {
+    //    this.reason = reason
+    //}
 }

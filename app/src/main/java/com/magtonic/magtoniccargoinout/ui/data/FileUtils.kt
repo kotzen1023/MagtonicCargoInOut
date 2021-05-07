@@ -22,10 +22,10 @@ import java.io.OutputStream
 
 class FileUtils {
     private val mTAG = FileUtils::class.java.name
+
     /* Get uri related content real local file path. */
     fun getPath(ctx: Context, uri: Uri): String? {
-        val ret: String?
-        ret = try {
+        return try {
             getUriRealPathAboveKitkat(ctx, uri)
             /*if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 // Android OS below sdk version 19
@@ -40,7 +40,6 @@ class FileUtils {
             Log.d(mTAG, "FilePath Catch: $e")
             getFilePathFromURI(ctx, uri)
         }
-        return ret
     }
 
     private fun getFilePathFromURI(context: Context, contentUri: Uri): String? {
@@ -235,7 +234,7 @@ class FileUtils {
         contentResolver: ContentResolver,
         uri: Uri,
         whereClause: String?
-    ): String? {
+    ): String {
         var ret = ""
 
         // Query the uri with condition.

@@ -5,7 +5,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.BitmapDrawable
+
 import android.net.Uri
 import android.os.Build
 
@@ -37,7 +37,7 @@ class OcrFragment : Fragment() {
     lateinit var btnRecognize: Button
     lateinit var btnTakePhoto: Button
 
-    private val IMAGE_CAPTURE_CODE = 1001
+    private val ImageCaptureCode = 1001
     var imageUri: Uri? = null
     lateinit var contentResolver: ContentResolver
 
@@ -153,33 +153,33 @@ class OcrFragment : Fragment() {
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             imageView.setImageURI(data!!.data)
 
-        } else if (requestCode == IMAGE_CAPTURE_CODE && resultCode == Activity.RESULT_OK) {
+        } else if (requestCode == ImageCaptureCode && resultCode == Activity.RESULT_OK) {
             imageView.setImageURI(imageUri)
         }
     }
 
-    fun startRecognizing(v: View) {
+    /*fun startRecognizing(v: View) {
         if (imageView.drawable != null) {
             editText.setText("")
             v.isEnabled = false
-            /*val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-            val image = FirebaseVisionImage.fromBitmap(bitmap)
-            val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
+            //val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+            //val image = FirebaseVisionImage.fromBitmap(bitmap)
+            //val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
 
-            detector.processImage(image)
-                .addOnSuccessListener { firebaseVisionText ->
-                    v.isEnabled = true
-                    processResultText(firebaseVisionText)
-                }
-                .addOnFailureListener {
-                    v.isEnabled = true
-                    editText.setText("Failed")
-                }*/
+            //detector.processImage(image)
+            //    .addOnSuccessListener { firebaseVisionText ->
+            //        v.isEnabled = true
+            //        processResultText(firebaseVisionText)
+            //    }
+            //    .addOnFailureListener {
+            //        v.isEnabled = true
+            //        editText.setText("Failed")
+            //    }
         } else {
             toast("Select an Image First")
         }
 
-    }
+    }*/
 
 
     /*private fun processResultText(resultText: FirebaseVisionText) {
@@ -201,6 +201,6 @@ class OcrFragment : Fragment() {
         //camera intent
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-        startActivityForResult(cameraIntent, IMAGE_CAPTURE_CODE)
+        startActivityForResult(cameraIntent, ImageCaptureCode)
     }
 }

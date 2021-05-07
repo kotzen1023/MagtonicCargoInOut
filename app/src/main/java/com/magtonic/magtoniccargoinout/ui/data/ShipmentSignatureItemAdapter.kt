@@ -5,25 +5,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.ImageView
+
 import android.widget.TextView
 import com.magtonic.magtoniccargoinout.R
 import java.util.ArrayList
 
 class ShipmentSignatureItemAdapter (context: Context?, resource: Int, objects: ArrayList<ShipmentSignatureItem>)  :
     ArrayAdapter<ShipmentSignatureItem>(context as Context, resource, objects) {
-    private val mTAG = ShipmentSignatureItemAdapter::class.java.name
+    //private val mTAG = ShipmentSignatureItemAdapter::class.java.name
     private val layoutResourceId: Int = resource
 
     private var inflater : LayoutInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private val items: ArrayList<ShipmentSignatureItem> = objects
-    private val mContext = context
+    //private val mContext = context
 
     override fun getCount(): Int {
         return items.size
     }
 
-    override fun getItem(position: Int): ShipmentSignatureItem? {
+    override fun getItem(position: Int): ShipmentSignatureItem {
         return items[position]
     }
 

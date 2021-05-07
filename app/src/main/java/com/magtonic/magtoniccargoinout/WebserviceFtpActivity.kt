@@ -1,7 +1,6 @@
 package com.magtonic.magtoniccargoinout
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -17,9 +16,9 @@ import com.magtonic.magtoniccargoinout.ui.data.Constants
 class WebserviceFtpActivity : AppCompatActivity() {
     private val mTAG = WebserviceFtpActivity::class.java.name
 
-    var pref: SharedPreferences? = null
-    var editor: SharedPreferences.Editor? = null
-    private val fileName = "Preference"
+    //var pref: SharedPreferences? = null
+    //var editor: SharedPreferences.Editor? = null
+    //private val fileName = "Preference"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

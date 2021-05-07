@@ -22,7 +22,7 @@ class SignatureDetailItemAdapter(context: Context?, resource: Int, objects: Arra
         return items.size
     }
 
-    override fun getItem(position: Int): SignatureDetailItem? {
+    override fun getItem(position: Int): SignatureDetailItem {
         return items[position]
     }
 

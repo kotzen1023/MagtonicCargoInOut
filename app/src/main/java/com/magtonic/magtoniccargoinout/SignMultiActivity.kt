@@ -5,11 +5,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Color
+
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
-import android.view.Menu
+
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.signatureMultiSignList
 import com.magtonic.magtoniccargoinout.ui.data.Constants
-import com.magtonic.magtoniccargoinout.ui.data.ShipmentSignatureItemAdapter
+
 import com.magtonic.magtoniccargoinout.ui.data.ShipmentSignatureMultiItemAdapter
 
 class SignMultiActivity : AppCompatActivity() {
@@ -35,7 +35,7 @@ class SignMultiActivity : AppCompatActivity() {
     private var btnClear: Button?= null
     private var btnSign: Button?=null
 
-    var shipmentSignatureMultiItemAdapter: ShipmentSignatureMultiItemAdapter? = null
+    private var shipmentSignatureMultiItemAdapter: ShipmentSignatureMultiItemAdapter? = null
 
     private var toastHandle: Toast? = null
 
@@ -222,22 +222,6 @@ class SignMultiActivity : AppCompatActivity() {
         alertDialogBuilder.show()
 
 
-    }
-
-    private fun toast(message: String) {
-
-        if (toastHandle != null) {
-            toastHandle!!.cancel()
-        }
-
-        val toast = Toast.makeText(this, HtmlCompat.fromHtml("<h1>$message</h1>", HtmlCompat.FROM_HTML_MODE_COMPACT), Toast.LENGTH_LONG)
-        toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL, 0, 0)
-        /*val group = toast.view as ViewGroup
-        val textView = group.getChildAt(0) as TextView
-        textView.textSize = 30.0f*/
-        toast.show()
-
-        toastHandle = toast
     }
 
     private fun toastLong(message: String) {

@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         @JvmStatic var penColor: Int = Color.BLACK
         @JvmStatic var penWidth: Float = 10f
 
-        @JvmStatic var base64: String = ""
+        //@JvmStatic var base64: String = ""
 
         @JvmStatic var signState: SignState = SignState.INITIAL
         @JvmStatic var currentDate: String = ""
@@ -138,7 +138,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //@JvmStatic var historyList: ArrayList<History>? = null
         //timer
         private var handler: MyHandler? = null
-        //private var guestContext: Context? = null
         private var mContext: Context? = null
 
         private var mTimer: Timer? = null
@@ -1379,10 +1378,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when (requestCode) {
             requestIdMultiplePermission -> {
 
-                val perms: HashMap<String, Int>? = HashMap()
+                val perms: HashMap<String, Int> = HashMap()
 
                 // Initialize the map with both permissions
-                perms!![Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
+                perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
                 perms[Manifest.permission.WRITE_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                 {
@@ -2648,7 +2647,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val btnConfirm = promptView.findViewById<Button>(R.id.btnDialogConfirm)
 
         textViewMsg.text = getString(R.string.version_string, BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
-        var msg = "[20210503] 新增出貨簽名功能\n"
+        val msg = "[20210503] 新增出貨簽名功能\n"
         //msg += "3. 新增\"設定\"讓使用者決定手動或自動確認"
         textViewFixMsg.text = msg
 

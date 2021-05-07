@@ -58,7 +58,7 @@ class HomeFragment : Fragment() {
     private var poLine: String = ""
 
     private var homeContext: Context? = null
-    //private lateinit var homeViewModel: HomeViewModel
+
 
     /*companion object {
         private var handler: MyHandler? = null

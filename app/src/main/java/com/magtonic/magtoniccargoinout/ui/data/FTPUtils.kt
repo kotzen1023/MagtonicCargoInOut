@@ -5,7 +5,6 @@ import android.content.Intent
 import android.util.Log
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.isSignMulti
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.signState
-import com.magtonic.magtoniccargoinout.SignActivity
 
 
 import org.apache.commons.net.ftp.FTP
