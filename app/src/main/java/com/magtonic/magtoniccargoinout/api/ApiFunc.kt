@@ -6,7 +6,7 @@ import com.magtonic.magtoniccargoinout.MainActivity.Companion.base_ip_address_we
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.iep_ip_address_webservice
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.timeOutSeconds
 import com.magtonic.magtoniccargoinout.model.send.*
-import com.magtonic.magtoniccargoinout.ui.data.Constants
+
 import okhttp3.*
 
 import java.io.IOException

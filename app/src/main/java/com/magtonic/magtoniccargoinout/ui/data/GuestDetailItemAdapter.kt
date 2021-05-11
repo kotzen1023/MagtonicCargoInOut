@@ -52,7 +52,7 @@ class GuestDetailItemAdapter(context: Context?, resource: Int, objects: ArrayLis
             holder = view.tag as ViewHolder
         }
 
-        //holder.fileicon = (ImageView) view.findViewById(R.id.fd_Icon1);
+        //holder.fileIcon = (ImageView) view.findViewById(R.id.fd_Icon1);
         //holder.filename = (TextView) view.findViewById(R.id.fileChooseFileName);
         //holder.checkbox = (CheckBox) view.findViewById(R.id.checkBoxInRow);
 
@@ -83,7 +83,7 @@ class GuestDetailItemAdapter(context: Context?, resource: Int, objects: ArrayLis
             mContext!!.sendBroadcast(guestInIntent)
         }
 
-        /*holder.itemImageLiencePlate.setOnClickListener {
+        /*holder.itemImageLicencePlate.setOnClickListener {
             Log.e(mTAG, "camera click $position")
 
             val guestInIntent = Intent(mContext, LicensePlateActivity::class.java)
@@ -100,7 +100,7 @@ class GuestDetailItemAdapter(context: Context?, resource: Int, objects: ArrayLis
         var itemData2: TextView = view.findViewById(R.id.guestItemDetailData2)
         var itemData34: TextView = view.findViewById(R.id.guestItemDetailData34)
         var itemBtnLeave: Button = view.findViewById(R.id.receiptItemDetailBtnLeave)
-        //var itemImageLiencePlate: ImageView = view.findViewById(R.id.imageViewCamera)
+        //var itemImageLicencePlate: ImageView = view.findViewById(R.id.imageViewCamera)
 
 
 

@@ -47,7 +47,7 @@ class SignatureDetailItemAdapter(context: Context?, resource: Int, objects: Arra
             holder = view.tag as ViewHolder
         }
 
-        //holder.fileicon = (ImageView) view.findViewById(R.id.fd_Icon1);
+        //holder.fileIcon = (ImageView) view.findViewById(R.id.fd_Icon1);
         //holder.filename = (TextView) view.findViewById(R.id.fileChooseFileName);
         //holder.checkbox = (CheckBox) view.findViewById(R.id.checkBoxInRow);
 
