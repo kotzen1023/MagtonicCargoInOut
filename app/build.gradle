@@ -61,7 +61,7 @@ dependencies {
     implementation files('libs/java-json.jar')
 
     //implementation "com.google.firebase:firebase-ml-vision:$firebase_ml_vision"
-    implementation 'com.google.firebase:firebase-functions:19.2.0'
+    implementation "com.google.firebase:firebase-functions:$firebase_functions"
     //implementation "com.google.android.gms:play-services-vision:$play_services_vision"
     //implementation "com.google.android.gms:play-services-vision-common:$play_services_vision_common"
     //implementation "com.google.android.gms:play-services-vision-face-contour-internal:$play_services_vision_face_contour_internal"
