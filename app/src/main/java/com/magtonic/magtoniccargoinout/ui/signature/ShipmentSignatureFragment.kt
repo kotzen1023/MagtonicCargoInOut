@@ -15,6 +15,9 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.magtonic.magtoniccargoinout.MainActivity
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.currentDate
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.isShipmentSignatureInDetail
@@ -27,7 +30,7 @@ import com.magtonic.magtoniccargoinout.ui.data.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ShipmentSignatureFragment : Fragment() {
+class ShipmentSignatureFragment : Fragment(), LifecycleObserver {
     private val mTAG = ShipmentSignatureFragment::class.java.name
     private var shipmentSignatureContext: Context? = null
 
@@ -244,8 +247,10 @@ class ShipmentSignatureFragment : Fragment() {
                     if (barcodeInput!!.text.toString().isEmpty()) {
                         searchIntent.putExtra("INPUT_NO", "")
                     } else {
-                        searchIntent.putExtra("INPUT_NO", barcodeInput!!.text.toString().toUpperCase(
-                            Locale.getDefault()))
+                        searchIntent.putExtra("INPUT_NO", barcodeInput!!.text.toString().uppercase(
+                            Locale.getDefault()
+                        )
+                        )
 
                     }
                     shipmentSignatureContext?.sendBroadcast(searchIntent)
@@ -284,8 +289,10 @@ class ShipmentSignatureFragment : Fragment() {
                     if (barcodeInput!!.text.toString().isEmpty()) {
                         searchIntent.putExtra("INPUT_NO", "")
                     } else {
-                        searchIntent.putExtra("INPUT_NO", barcodeInput!!.text.toString().toUpperCase(
-                            Locale.getDefault()))
+                        searchIntent.putExtra("INPUT_NO", barcodeInput!!.text.toString().uppercase(
+                            Locale.getDefault()
+                        )
+                        )
                     }
                     shipmentSignatureContext?.sendBroadcast(searchIntent)
 
@@ -593,10 +600,25 @@ class ShipmentSignatureFragment : Fragment() {
         super.onDestroyView()
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
+    /*override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.i(mTAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
 
+    }*/
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    fun onCreated(){
+        Log.i(mTAG,"reached the State.Created")
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        lifecycle.addObserver(this)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        lifecycle.removeObserver(this)
     }
 
     private fun setDateFormat(year: Int, month: Int, day: Int): String {

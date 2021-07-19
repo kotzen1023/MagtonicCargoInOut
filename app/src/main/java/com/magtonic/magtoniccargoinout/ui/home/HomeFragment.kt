@@ -19,6 +19,9 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 
 import com.magtonic.magtoniccargoinout.MainActivity
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.currentPlant
@@ -32,7 +35,7 @@ import com.magtonic.magtoniccargoinout.ui.data.GuestDetailItemAdapter
 
 import java.util.*
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), LifecycleObserver {
 
     private val mTAG = HomeFragment::class.java.name
 
@@ -590,10 +593,25 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
+    /*override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.i(mTAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
 
+    }*/
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    fun onCreated(){
+        Log.i(mTAG,"reached the State.Created")
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        lifecycle.addObserver(this)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        lifecycle.removeObserver(this)
     }
 
     private fun toast(message: String) {

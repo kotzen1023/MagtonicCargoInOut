@@ -14,7 +14,9 @@ buildscript {
         androidx_media_version = '1.0.1'
         androidx_preference_version = '1.0.0'
         androidx_test_runner_version = '1.1.1'
-        arch_lifecycle_version = '2.2.0'
+        lifecycle_compiler_version = '2.0.0'
+        lifecycle_runtime_version = '2.0.0'
+        lifecycle_extensions_version = '2.2.0'
         constraint_layout_version = '2.0.4'
         espresso_core_version = '3.4.0'
         exoplayer_version = '2.10.0'
@@ -49,6 +51,7 @@ buildscript {
 
         commons_lang3_version = '3.4'
         firebase_functions = '20.0.0'
+        fragment_version = '1.3.5'
     }
 
     repositories {

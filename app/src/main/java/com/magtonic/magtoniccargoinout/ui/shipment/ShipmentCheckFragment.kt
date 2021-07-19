@@ -11,6 +11,9 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.magtonic.magtoniccargoinout.MainActivity
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.db
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.shipmentList
@@ -20,7 +23,7 @@ import com.magtonic.magtoniccargoinout.ui.data.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ShipmentCheckFragment : Fragment() {
+class ShipmentCheckFragment : Fragment(), LifecycleObserver {
     private val mTAG = ShipmentCheckFragment::class.java.name
     private var shipmentCheckContext: Context? = null
 
@@ -126,8 +129,10 @@ class ShipmentCheckFragment : Fragment() {
 
                     val searchIntent = Intent()
                     searchIntent.action = Constants.ACTION.ACTION_SHIPMENT_CHECK_ACTION
-                    searchIntent.putExtra("INPUT_NO", barcodeInput!!.text.toString().toUpperCase(
-                        Locale.getDefault()))
+                    searchIntent.putExtra("INPUT_NO", barcodeInput!!.text.toString().uppercase(
+                        Locale.getDefault()
+                    )
+                    )
                     shipmentCheckContext?.sendBroadcast(searchIntent)
 
 
@@ -167,8 +172,10 @@ class ShipmentCheckFragment : Fragment() {
 
                     val searchIntent = Intent()
                     searchIntent.action = Constants.ACTION.ACTION_SHIPMENT_CHECK_ACTION
-                    searchIntent.putExtra("INPUT_NO", barcodeInput!!.text.toString().toUpperCase(
-                        Locale.getDefault()))
+                    searchIntent.putExtra("INPUT_NO", barcodeInput!!.text.toString().uppercase(
+                        Locale.getDefault()
+                    )
+                    )
                     shipmentCheckContext?.sendBroadcast(searchIntent)
 
                     true
@@ -432,13 +439,26 @@ class ShipmentCheckFragment : Fragment() {
         super.onDestroyView()
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
+    /*override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.i(mTAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
 
+    }*/
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    fun onCreated(){
+        Log.i(mTAG,"reached the State.Created")
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        lifecycle.addObserver(this)
+    }
 
+    override fun onDetach() {
+        super.onDetach()
+        lifecycle.removeObserver(this)
+    }
 
 
 }

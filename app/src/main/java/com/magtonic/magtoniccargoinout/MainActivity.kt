@@ -60,6 +60,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
+
+
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private val mTAG = MainActivity::class.java.name
     private val requestIdMultiplePermission = 1
@@ -1376,6 +1378,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         requestCode: Int,
         permissions: Array<String>, grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         Log.d(mTAG, "Permission callback called-------")
         when (requestCode) {
@@ -2731,4 +2734,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         alertDialogBuilder.show()
     }
+
+
 }
