@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var menuItemKeyboard: MenuItem? = null
     private var menuItemShipmentHistory: MenuItem? = null
 
-    private var mContext: Context? = null
+    //private var mContext: Context? = null
 
     @SuppressLint("StaticFieldLeak")
     companion object {
