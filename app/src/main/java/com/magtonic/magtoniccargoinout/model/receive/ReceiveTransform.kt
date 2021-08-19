@@ -41,7 +41,13 @@ class ReceiveTransform {
             str = str.substring(1, str.length - 1)
             return str*/
             //val jsonStr = str.substring(1, str.length - 1)
-            return str.substring(1, str.length - 1)
+            //return str.substring(1, str.length - 1)
+            return try {
+                str.substring(1, str.length - 1)
+            } catch (e: StringIndexOutOfBoundsException) {
+                e.printStackTrace()
+                "Error"
+            }
 
         }
 
@@ -52,7 +58,13 @@ class ReceiveTransform {
             str = str.substring(1, str.length - 1)
             return str*/
             //val jsonStr = str.substring(1, str.length - 1)
-            return str.substring(0, str.length)
+            //return str.substring(0, str.length)
+            return try {
+                str.substring(0, str.length)
+            } catch (e: StringIndexOutOfBoundsException) {
+                e.printStackTrace()
+                "Error"
+            }
 
         }
 

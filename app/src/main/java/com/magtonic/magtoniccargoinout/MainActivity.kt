@@ -1727,56 +1727,66 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //1.get response ,2 error or right , 3 update ui ,4. restore acState 5. update fragment detail
             runOnUiThread {
                 try {
-
-                    val retItemReceipt = ItemReceipt.transRJReceiptStrToItemReceipt(res, barcode!!.poBarcode)
-
-
-                    if (retItemReceipt != null) {
-                        if (!retItemReceipt.rjReceipt?.result.equals(ItemReceipt.RESULT_CORRECT)) {
-                            Log.e(
-                                mTAG,
-                                "result = " + retItemReceipt.rjReceipt?.result + " result2 = " + retItemReceipt.rjReceipt?.result2
-                            )
-                            //can't receive the item
-                            //val mess = retItemReceipt.poNumScanTotal + " " + retItemReceipt.rjReceipt?.result2
-                            val mess = retItemReceipt.rjReceipt?.result2 as String
-                            toastLong(mess)
+                    if (res != "Error" && !checkServerErrorString(res)) {
+                        val retItemReceipt =
+                            ItemReceipt.transRJReceiptStrToItemReceipt(res, barcode!!.poBarcode)
 
 
-                            val receiptNoIntent = Intent()
-                            receiptNoIntent.action = Constants.ACTION.ACTION_RECEIPT_NO_NOT_EXIST
-                            sendBroadcast(receiptNoIntent)
-                        }// result  = 0
-                        else {
-                            // success receive ,update list ,update fragment
-                            //if(Fristpmc3.equals("") || Fristpmm02.equals("") || Fristpmc3.equals(itemReceipt.rjReceipt.pmc03) || Fristpmm02.equals(itemReceipt.rjReceipt.pmm02)) {
+                        if (retItemReceipt != null) {
+                            if (!retItemReceipt.rjReceipt?.result.equals(ItemReceipt.RESULT_CORRECT)) {
+                                Log.e(
+                                    mTAG,
+                                    "result = " + retItemReceipt.rjReceipt?.result + " result2 = " + retItemReceipt.rjReceipt?.result2
+                                )
+                                //can't receive the item
+                                //val mess = retItemReceipt.poNumScanTotal + " " + retItemReceipt.rjReceipt?.result2
+                                val mess = retItemReceipt.rjReceipt?.result2 as String
+                                toastLong(mess)
 
-                            //multi
-                            /*if (ReceiptList.size() > 0 ) {
+
+                                val receiptNoIntent = Intent()
+                                receiptNoIntent.action =
+                                    Constants.ACTION.ACTION_RECEIPT_NO_NOT_EXIST
+                                sendBroadcast(receiptNoIntent)
+                            }// result  = 0
+                            else {
+                                // success receive ,update list ,update fragment
+                                //if(Fristpmc3.equals("") || Fristpmm02.equals("") || Fristpmc3.equals(itemReceipt.rjReceipt.pmc03) || Fristpmm02.equals(itemReceipt.rjReceipt.pmm02)) {
+
+                                //multi
+                                /*if (ReceiptList.size() > 0 ) {
                                 ReceiptList.removeAllItem()
                             }
 
                             addResult = ReceiptList.add(retItemReceipt)
                             itemReceipt = ReceiptList.getReceiptItem(0)*/
 
-                            //single
-                            itemReceipt = retItemReceipt
+                                //single
+                                itemReceipt = retItemReceipt
 
-                            Log.e(mTAG, "2")
-                            val refreshIntent = Intent()
-                            refreshIntent.action = Constants.ACTION.ACTION_RECEIPT_FRAGMENT_REFRESH
-                            //refreshIntent.putExtra("RVA06", rva06)
-                            mContext!!.sendBroadcast(refreshIntent)
+                                Log.e(mTAG, "2")
+                                val refreshIntent = Intent()
+                                refreshIntent.action =
+                                    Constants.ACTION.ACTION_RECEIPT_FRAGMENT_REFRESH
+                                //refreshIntent.putExtra("RVA06", rva06)
+                                mContext!!.sendBroadcast(refreshIntent)
 
-                        }//result = 1
+                            }//result = 1
+                        } else {
+                            Log.e(mTAG, "retItemReceipt = null")
+
+                            toast(getString(R.string.receipt_this_receipt_not_exist))
+
+                            val receiptNoIntent = Intent()
+                            receiptNoIntent.action = Constants.ACTION.ACTION_RECEIPT_NO_NOT_EXIST
+                            sendBroadcast(receiptNoIntent)
+                        }
                     } else {
-                        Log.e(mTAG, "retItemReceipt = null")
+                        toast(getString(R.string.toast_server_error))
 
-                        toast(getString(R.string.receipt_this_receipt_not_exist))
-
-                        val receiptNoIntent = Intent()
-                        receiptNoIntent.action = Constants.ACTION.ACTION_RECEIPT_NO_NOT_EXIST
-                        sendBroadcast(receiptNoIntent)
+                        val failIntent = Intent()
+                        failIntent.action = Constants.ACTION.ACTION_SERVER_ERROR
+                        sendBroadcast(failIntent)
                     }
 
 
@@ -1834,7 +1844,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //1.get response ,2 error or right , 3 update ui ,4. restore acState 5. update fragment detail
             runOnUiThread {
                 try {
-                    if (!checkServerErrorString(res)) {
+                    if (res != "Error" && !checkServerErrorString(res)) {
                         val retItemReceipt = ItemReceipt.transRJReceiptStrToItemReceiptPoint(
                             res,
                             barcode!!.poBarcodeByScan
@@ -1892,6 +1902,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                     } else { //checkServerErrorString true
                         toast(getString(R.string.toast_server_error))
+
+                        val failIntent = Intent()
+                        failIntent.action = Constants.ACTION.ACTION_SERVER_ERROR
+                        sendBroadcast(failIntent)
                     }
 
 
@@ -1949,38 +1963,50 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //1.get response ,2 error or right , 3 update ui ,4. restore acState 5. update fragment detail
             runOnUiThread {
                 try {
+                    if (res != "Error" && !checkServerErrorString(res)) {
+                        val retItemGuest = ItemGuest.transRJGuestStrToItemGuest(res)
 
-                    val retItemGuest = ItemGuest.transRJGuestStrToItemGuest(res)
+                        if (retItemGuest != null) {
+                            if (!retItemGuest.rjGuest?.result.equals(ItemGuest.RESULT_CORRECT)) {
+                                Log.e(
+                                    mTAG,
+                                    "result = " + retItemGuest.rjGuest?.result + " result2 = " + retItemGuest.rjGuest?.result2
+                                )
+                                //can't receive the item
+                                //val mess = retItemReceipt.poNumScanTotal + " " + retItemReceipt.rjReceipt?.result2
+                                val mess = retItemGuest.rjGuest?.result2 as String
+                                toastLong(mess)
 
-                    if (retItemGuest != null) {
-                        if (!retItemGuest.rjGuest?.result.equals(ItemGuest.RESULT_CORRECT)) {
-                            Log.e(mTAG, "result = " + retItemGuest.rjGuest?.result + " result2 = " + retItemGuest.rjGuest?.result2)
-                            //can't receive the item
-                            //val mess = retItemReceipt.poNumScanTotal + " " + retItemReceipt.rjReceipt?.result2
-                            val mess = retItemGuest.rjGuest?.result2 as String
-                            toastLong(mess)
+
+                                val refreshIntent = Intent()
+                                refreshIntent.action =
+                                    Constants.ACTION.ACTION_GUEST_IN_OR_LEAVE_FAILED
+                                mContext!!.sendBroadcast(refreshIntent)
+                            }// result  = 0
+                            else {
+                                // success receive ,update list ,update fragment
+                                Log.d(mTAG, "guest In or Out success!")
+
+                                val msg = retItemGuest.rjGuest?.data1 as String
+                                toastLong(msg)
+
+                                val successIntent = Intent()
+                                successIntent.action =
+                                    Constants.ACTION.ACTION_GUEST_IN_OR_LEAVE_SUCCESS
+                                mContext!!.sendBroadcast(successIntent)
+
+                            }//result = 1
+                        } else {
+                            Log.e(mTAG, "retItemGuest = null")
 
 
-                            val refreshIntent = Intent()
-                            refreshIntent.action = Constants.ACTION.ACTION_GUEST_IN_OR_LEAVE_FAILED
-                            mContext!!.sendBroadcast(refreshIntent)
-                        }// result  = 0
-                        else {
-                            // success receive ,update list ,update fragment
-                            Log.d(mTAG, "guest In or Out success!")
-
-                            val msg = retItemGuest.rjGuest?.data1 as String
-                            toastLong(msg)
-
-                            val successIntent = Intent()
-                            successIntent.action = Constants.ACTION.ACTION_GUEST_IN_OR_LEAVE_SUCCESS
-                            mContext!!.sendBroadcast(successIntent)
-
-                        }//result = 1
+                        }
                     } else {
-                        Log.e(mTAG, "retItemGuest = null")
+                        toast(getString(R.string.toast_server_error))
 
-
+                        val failIntent = Intent()
+                        failIntent.action = Constants.ACTION.ACTION_SERVER_ERROR
+                        sendBroadcast(failIntent)
                     }
 
 
@@ -2653,7 +2679,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val btnConfirm = promptView.findViewById<Button>(R.id.btnDialogConfirm)
 
         textViewMsg.text = getString(R.string.version_string, BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
-        val msg = "[20210503] 新增出貨簽名功能\n"
+        var msg = "[20210503] 新增出貨簽名功能\n"
+        msg += "[20210819] 修正伺服器當掉時，使用web service導致App crash。\n"
         //msg += "3. 新增\"設定\"讓使用者決定手動或自動確認"
         textViewFixMsg.text = msg
 
