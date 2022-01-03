@@ -110,6 +110,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         @JvmStatic var guestListT: ArrayList<RJGuest> = ArrayList()
         @JvmStatic var guestListA: ArrayList<RJGuest> = ArrayList()
         @JvmStatic var guestListB: ArrayList<RJGuest> = ArrayList()
+        @JvmStatic var guestListSinJi: ArrayList<RJGuest> = ArrayList()
+        @JvmStatic var guestListAnSin: ArrayList<RJGuest> = ArrayList()
+        @JvmStatic var guestListMaChou: ArrayList<RJGuest> = ArrayList()
         @JvmStatic var currentPlant: String = "T"
 
         //timeout
@@ -535,6 +538,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         when(plant) {
                             "A" -> guestListA.clear()
                             "B" -> guestListB.clear()
+                            "C" -> guestListSinJi.clear()
+                            "D" -> guestListAnSin.clear()
+                            "E" -> guestListMaChou.clear()
                             else -> guestListT.clear()
                         }
 
@@ -2054,6 +2060,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     when(currentSearchPlant) {
                         "A" -> guestListA.clear()
                         "B" -> guestListB.clear()
+                        "C" -> guestListSinJi.clear()
+                        "D" -> guestListAnSin.clear()
+                        "E" -> guestListMaChou.clear()
                         else -> guestListT.clear()
                     }
 
@@ -2076,6 +2085,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                     }
                                     "B" -> {
                                         guestListB.add(rjGuestList.dataList[0])
+                                        val successIntent = Intent()
+                                        successIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE
+                                        mContext!!.sendBroadcast(successIntent)
+                                    }
+                                    "C" -> {
+                                        guestListSinJi.add(rjGuestList.dataList[0])
+                                        val successIntent = Intent()
+                                        successIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE
+                                        mContext!!.sendBroadcast(successIntent)
+                                    }
+                                    "D" -> {
+                                        guestListAnSin.add(rjGuestList.dataList[0])
+                                        val successIntent = Intent()
+                                        successIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE
+                                        mContext!!.sendBroadcast(successIntent)
+                                    }
+                                    "E" -> {
+                                        guestListMaChou.add(rjGuestList.dataList[0])
                                         val successIntent = Intent()
                                         successIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE
                                         mContext!!.sendBroadcast(successIntent)
@@ -2136,6 +2163,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                     when(currentSearchPlant) {
                                         "A" -> guestListA.add(rjGuest)
                                         "B" -> guestListB.add(rjGuest)
+                                        "C" -> guestListSinJi.add(rjGuest)
+                                        "D" -> guestListAnSin.add(rjGuest)
+                                        "E" -> guestListMaChou.add(rjGuest)
                                         else -> guestListT.add(rjGuest)
                                     }
                                     //guestList.add(rjGuest)
@@ -2157,6 +2187,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                     mContext!!.sendBroadcast(successIntent)
                                 }
                                 "B" -> {
+                                    val successIntent = Intent()
+                                    successIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE
+                                    mContext!!.sendBroadcast(successIntent)
+                                }
+                                "C" -> {
+                                    val successIntent = Intent()
+                                    successIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE
+                                    mContext!!.sendBroadcast(successIntent)
+                                }
+                                "D" -> {
+                                    val successIntent = Intent()
+                                    successIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE
+                                    mContext!!.sendBroadcast(successIntent)
+                                }
+                                "E" -> {
                                     val successIntent = Intent()
                                     successIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE
                                     mContext!!.sendBroadcast(successIntent)
@@ -2189,6 +2234,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 mContext!!.sendBroadcast(noExistIntent)
                             }
                             "B" -> {
+                                val noExistIntent = Intent()
+                                noExistIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE
+                                mContext!!.sendBroadcast(noExistIntent)
+                            }
+                            "C" -> {
+                                val noExistIntent = Intent()
+                                noExistIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE
+                                mContext!!.sendBroadcast(noExistIntent)
+                            }
+                            "D" -> {
+                                val noExistIntent = Intent()
+                                noExistIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE
+                                mContext!!.sendBroadcast(noExistIntent)
+                            }
+                            "E" -> {
                                 val noExistIntent = Intent()
                                 noExistIntent.action = Constants.ACTION.ACTION_GUEST_SEARCH_GUEST_COMPLETE
                                 mContext!!.sendBroadcast(noExistIntent)

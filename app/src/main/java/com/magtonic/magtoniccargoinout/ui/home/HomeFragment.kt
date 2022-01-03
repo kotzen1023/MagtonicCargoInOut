@@ -26,7 +26,10 @@ import androidx.lifecycle.OnLifecycleEvent
 import com.magtonic.magtoniccargoinout.MainActivity
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.currentPlant
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.guestListA
+import com.magtonic.magtoniccargoinout.MainActivity.Companion.guestListAnSin
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.guestListB
+import com.magtonic.magtoniccargoinout.MainActivity.Companion.guestListMaChou
+import com.magtonic.magtoniccargoinout.MainActivity.Companion.guestListSinJi
 import com.magtonic.magtoniccargoinout.MainActivity.Companion.guestListT
 import com.magtonic.magtoniccargoinout.R
 import com.magtonic.magtoniccargoinout.ui.data.Constants
@@ -188,6 +191,9 @@ class HomeFragment : Fragment(), LifecycleObserver {
                     when(position) {
                         1 -> "A"
                         2 -> "B"
+                        3 -> "C"
+                        4 -> "D"
+                        5 -> "E"
                         else -> "T"
                     }
 
@@ -208,6 +214,9 @@ class HomeFragment : Fragment(), LifecycleObserver {
         factoryList.add("本廠")
         factoryList.add("A廠")
         factoryList.add("B廠")
+        factoryList.add("新吉廠")
+        factoryList.add("安新廠")
+        factoryList.add("馬稠廠")
 
         val factoryAdapter = ArrayAdapter(homeContext as Context, R.layout.myspinner, factoryList)
         spinner.adapter = factoryAdapter
@@ -215,6 +224,9 @@ class HomeFragment : Fragment(), LifecycleObserver {
         when(currentPlant) {
             "A" -> spinner.setSelection(1)
             "B" -> spinner.setSelection(2)
+            "C" -> spinner.setSelection(3)
+            "D" -> spinner.setSelection(4)
+            "E" -> spinner.setSelection(5)
             else -> spinner.setSelection(0)
         }
 
@@ -401,6 +413,33 @@ class HomeFragment : Fragment(), LifecycleObserver {
                             }
                             "B" -> {
                                 for (rjGuest in guestListB) {
+                                    //val date = rjGuest.data3.split(" ")
+
+                                    //val timeString = date[0]+"\n"+rjGuest.data4
+                                    val guestDetailItem = GuestDetailItem(rjGuest.data1, rjGuest.data2, rjGuest.data3, rjGuest.data4, rjGuest.data5)
+                                    guestDetailList.add(guestDetailItem)
+                                }
+                            }
+                            "C" -> {
+                                for (rjGuest in guestListSinJi) {
+                                    //val date = rjGuest.data3.split(" ")
+
+                                    //val timeString = date[0]+"\n"+rjGuest.data4
+                                    val guestDetailItem = GuestDetailItem(rjGuest.data1, rjGuest.data2, rjGuest.data3, rjGuest.data4, rjGuest.data5)
+                                    guestDetailList.add(guestDetailItem)
+                                }
+                            }
+                            "D" -> {
+                                for (rjGuest in guestListAnSin) {
+                                    //val date = rjGuest.data3.split(" ")
+
+                                    //val timeString = date[0]+"\n"+rjGuest.data4
+                                    val guestDetailItem = GuestDetailItem(rjGuest.data1, rjGuest.data2, rjGuest.data3, rjGuest.data4, rjGuest.data5)
+                                    guestDetailList.add(guestDetailItem)
+                                }
+                            }
+                            "E" -> {
+                                for (rjGuest in guestListMaChou) {
                                     //val date = rjGuest.data3.split(" ")
 
                                     //val timeString = date[0]+"\n"+rjGuest.data4
@@ -669,12 +708,18 @@ class HomeFragment : Fragment(), LifecycleObserver {
             when(plant) {
                 "A" -> spinnerGuestDialog.setSelection(1)
                 "B" -> spinnerGuestDialog.setSelection(2)
+                "C" -> spinnerGuestDialog.setSelection(3)
+                "D" -> spinnerGuestDialog.setSelection(4)
+                "E" -> spinnerGuestDialog.setSelection(5)
                 else -> spinnerGuestDialog.setSelection(0)
             }
         } else {
             when(currentPlant) {
                 "A" -> spinnerGuestDialog.setSelection(1)
                 "B" -> spinnerGuestDialog.setSelection(2)
+                "C" -> spinnerGuestDialog.setSelection(3)
+                "D" -> spinnerGuestDialog.setSelection(4)
+                "E" -> spinnerGuestDialog.setSelection(5)
                 else -> spinnerGuestDialog.setSelection(0)
             }
         }
@@ -694,6 +739,9 @@ class HomeFragment : Fragment(), LifecycleObserver {
                 inPlant = when(position) {
                     1 -> "A"
                     2 -> "B"
+                    3 -> "C"
+                    4 -> "D"
+                    5 -> "E"
                     else -> "T"
                 }
 
