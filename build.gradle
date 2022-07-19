@@ -37,7 +37,7 @@ buildscript {
         androidx_percentlayout_version = '1.0.0'
         firebase_ml_vision = '24.1.0'
 
-        google_services_version = '4.3.3'
+        google_services_version = '4.3.10'
 
         play_services_vision_common = '19.1.2'
         play_services_vision_image_label = '18.1.1'
@@ -60,7 +60,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.android.tools.build:gradle:7.2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.gms:google-services:$google_services_version"
 
